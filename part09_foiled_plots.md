@@ -1,0 +1,519 @@
+# OECD Mass Violence Dataset — Part 9: Foiled plots
+
+Same schema as Part 1. Foiled plots flagged with `status: F`. These cases show the network architecture visible in pre-incident investigations. Especially important for Terrorgram Collective meta-canon analysis.
+
+---
+
+### USA-2019-HASSON
+- event_date: 2019-02-15
+- event_year: 2019
+- country: USA
+- city: Silver Spring (MD) / Washington DC area
+- venue: N/A (arrested before execution)
+- venue_type: government
+- perp_name: Christopher Paul Hasson
+- perp_age: 49
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA (US Coast Guard lieutenant)
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: 15 firearms + 1000+ rounds (stockpile)
+- method_primary: firearm
+- target_description: Democratic politicians + MSNBC/CNN journalists + activists (Pelosi, Schumer, AOC, Maddow, Cuomo among listed)
+- target_type: political
+- ideology_claimed: Breivik-inspired accelerationist mass-casualty aspiration
+- ideology_assessed: confirmed accelerationist white-supremacist
+- subculture_tags: accelerationist; great_replacement
+- manifesto_exists: Partial
+- manifesto_format: emails to self + spreadsheet hit lists
+- documented_searches: "civil war if trump impeached", "white supremacy", "weapons exercise while maintaining physical fitness", explicit Breivik manifesto studies
+- primary_platforms: email drafts to self; minimal public social media
+- how_disrupted: internet-history tripwire flagged by USCG IT after access to Breivik manifesto + planning docs
+- named_prior_attackers_incoming: Breivik (explicit planning document based on 2083)
+- incoming_citation_count: 1
+- saints_relevance: medium
+- saints_tradition: core_farright
+- sentence: 13 years federal (2020)
+- cross_references: DOJ; ADL; GW
+- key_sources: DOJ detention memo 2019; sentencing docs
+- evidence_tier: 1
+- notes: Early explicit Breivik-emulation plot in US federal service. "The Target List" was a direct 2083 template replication.
+
+### USA-2019-HOLZER
+- event_date: 2019-11-01
+- event_year: 2019
+- country: USA
+- city: Pueblo (CO)
+- venue: Temple Emanuel (target)
+- venue_type: religious_site
+- perp_name: Richard Holzer
+- perp_age: 27
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: inert pipe bombs supplied by FBI UC
+- method_primary: explosive
+- target_description: historic Pueblo synagogue
+- target_type: religious
+- ideology_claimed: white-supremacist; skinhead movement
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist
+- primary_platforms: Facebook (extremist skinhead groups)
+- how_disrupted: FBI UCs built rapport online, supplied inert devices
+- sentence: 19.5 years federal (2021)
+- cross_references: DOJ; ADL
+- evidence_tier: 1
+
+### USA-2019-CLIMO
+- event_date: 2019-08-08
+- event_year: 2019
+- country: USA
+- city: Las Vegas (NV)
+- venue: local synagogue + LGBTQ bar (targets)
+- venue_type: religious_site
+- perp_name: Conor Climo
+- perp_age: 23
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: bomb-making components + bomb-design manuals
+- method_primary: explosive
+- target_description: synagogue + LGBTQ bar reconnaissance
+- target_type: religious
+- ideology_claimed: Atomwaffen / Feuerkrieg Division affiliations
+- ideology_assessed: confirmed AWD-linked accelerationist
+- subculture_tags: accelerationist; atomwaffen
+- primary_platforms: Discord (AWD channels); Telegram
+- how_disrupted: FBI-UC Discord infiltration
+- sentence: federal explosives charges
+- cross_references: DOJ; ADL
+- evidence_tier: 1
+
+### USA-2020-BASE
+- event_date: 2020-01-16
+- event_year: 2020
+- country: USA
+- city: multi-state (Delaware, Maryland, Georgia)
+- venue: Richmond VA Lobby Day pro-gun rally (primary target)
+- venue_type: political
+- perp_name: Brian Mark Lemley Jr.; Patrik Jordan Mathews; William Garfield Bilbrough IV
+- perp_age: 34
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA (Lemley/Bilbrough); Canada (Mathews, ex-Canadian Army Reserve)
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: modified AR-15 (Polymer80 build); stockpile
+- method_primary: firearm
+- target_description: Virginia gun-rights rally (hoped to start race war)
+- target_type: political
+- ideology_claimed: accelerationist white-supremacist; The Base
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; atomwaffen
+- manifesto_exists: Partial
+- manifesto_format: text (Telegram/Wire chat logs)
+- primary_platforms: Wire; Telegram; The Base encrypted comms
+- direct_contact_other_attackers: The Base cell network (Rinaldo Nazzaro leadership)
+- how_disrupted: FBI infiltration; Mathews fled Canada after Winnipeg Free Press expose
+- sentence: Lemley 9 yrs; Mathews 9 yrs; Bilbrough 5 yrs (all federal)
+- cross_references: DOJ; ADL; Europol; RCMP
+- evidence_tier: 1
+
+### USA-2020-WHITMER
+- event_date: 2020-10-07
+- event_year: 2020
+- country: USA
+- city: Michigan
+- venue: Gov. Whitmer's vacation home (target)
+- venue_type: residence
+- perp_name: Adam Fox; Barry Croft Jr. + co-conspirators
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: firearms; IEDs
+- method_primary: explosive
+- target_description: kidnap Gov. Gretchen Whitmer; storm state capitol
+- target_type: political
+- ideology_claimed: "Boogaloo" accelerationism; Wolverine Watchmen
+- ideology_assessed: confirmed anti-government extremism
+- subculture_tags: accelerationist; sovereign_citizen
+- how_disrupted: FBI infiltrators + CHS penetration
+- sentence: Fox LWOP + 9 yrs; Croft 19.5 yrs; varied co-conspirators
+- cross_references: DOJ; ADL; GW
+- evidence_tier: 1
+
+### USA-2020-MELZER
+- event_date: 2020-05-30
+- event_year: 2020
+- country: USA
+- city: Italy/Turkey (Army target; plot disrupted in training)
+- venue: US Army unit overseas
+- venue_type: workplace
+- perp_name: Ethan Melzer
+- perp_age: 22
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: info leak to Order of Nine Angles + jihadist contacts
+- method_primary: mixed
+- target_description: US Army unit in Turkey (ambush planning — classified info leak to extremist contacts)
+- target_type: workplace
+- ideology_claimed: Order of Nine Angles + jihadist cross-over
+- ideology_assessed: confirmed Satanic/accelerationist; jihadist bridge case
+- subculture_tags: o9a; accelerationist
+- primary_platforms: encrypted channels; O9A-linked Telegram
+- direct_contact_other_attackers: ISIS members contacted by Melzer to pass operational info
+- how_disrupted: Army counterintelligence + FBI
+- sentence: 45 years federal
+- cross_references: DOJ; ADL
+- evidence_tier: 1
+- notes: Key O9A-jihadist bridge case. Represents cross-ideological convergence pattern later formalized as "Nihilistic Violent Extremism" (NVE).
+
+### DEU-2020-GRUPPES
+- event_date: 2020-02-14
+- event_year: 2020
+- country: Germany
+- city: multi-state
+- venue: mosques (multiple, in 10 federal states)
+- venue_type: religious_site
+- perp_name: Gruppe S / "Group S" (Werner S. + 11 co-conspirators)
+- perp_sex: M
+- perp_ethnicity: German
+- perp_nationality: Germany
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: firearms + stockpiled ammunition
+- method_primary: firearm
+- target_description: 10 simultaneous mosque attacks across German federal states — explicitly Tarrant-replicative
+- target_type: religious
+- ideology_claimed: far-right accelerationist; Tarrant emulation
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; great_replacement
+- named_prior_attackers_incoming: Tarrant (explicit plot modeling)
+- incoming_citation_count: 1
+- how_disrupted: Bundespolizei raids after informant tip
+- sentence: Werner S. 10 yrs 5 mo (2023); co-conspirators 7 yrs 11 mo to 5 yrs 2 mo
+- cross_references: BfV; Europol TE-SAT 2021
+- key_sources: BGH Federal Court of Justice 2023 verdict
+- evidence_tier: 1
+- notes: Largest post-Tarrant far-right mass-attack plot successfully disrupted in Germany. Direct Christchurch-replication template.
+
+### DEU-2022-VEREINTEPATRIOTEN
+- event_date: 2022-04-14
+- event_year: 2022
+- country: Germany
+- city: multi-state
+- venue: Reichstag; Karl Lauterbach kidnap (targets)
+- venue_type: government
+- perp_name: "Vereinte Patrioten" cell
+- perp_sex: mixed
+- perp_ethnicity: German
+- perp_nationality: Germany
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: firearms + explosives (planned)
+- method_primary: mixed
+- target_description: topple state; kidnap Health Minister Lauterbach; trigger civil war
+- target_type: political
+- ideology_claimed: Reichsburger; QAnon-adjacent; COVID conspiracism
+- ideology_assessed: confirmed
+- subculture_tags: reichsburger; sovereign_citizen; covid_conspiracist
+- how_disrupted: BKA raids
+- sentence: various (7-8 yrs for leadership)
+- cross_references: BfV; Europol TE-SAT 2023
+- evidence_tier: 1
+
+### DEU-2022-REUSS
+- event_date: 2022-12-07
+- event_year: 2022
+- country: Germany
+- city: multi-state (25+ raids)
+- venue: Reichstag (target)
+- venue_type: government
+- perp_name: Heinrich XIII Prinz Reuss cell (25+ arrested)
+- perp_age: 71
+- perp_sex: mixed
+- perp_ethnicity: German
+- perp_nationality: Germany
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: firearms arsenal; explosives; "military plan"
+- method_primary: mixed
+- target_description: storm Reichstag; install Reuss as head of state in new "Second Reich"
+- target_type: political
+- ideology_claimed: Reichsburger monarchism + QAnon + COVID conspiracism
+- ideology_assessed: confirmed
+- subculture_tags: reichsburger; sovereign_citizen; covid_conspiracist
+- how_disrupted: BKA raids across 11 states
+- sentence: multiple trials underway 2024-2026
+- cross_references: BfV; BKA; Europol TE-SAT 2023
+- evidence_tier: 1
+- notes: Largest-ever Reichsburger raid. Former Bundeswehr/KSK officers implicated.
+
+### SVK-2022-BENADIK
+- event_date: 2022-10-12 (pre-attack Krajcik mentor)
+- event_year: 2022
+- country: Slovakia
+- city: Bratislava
+- venue: N/A (mentoring network)
+- venue_type: N/A
+- perp_name: Daniel Benadik ("Slovakbro")
+- perp_age: 28
+- perp_sex: M
+- perp_ethnicity: Slovak
+- perp_nationality: Slovakia
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: N/A (mentor/inciter)
+- method_primary: N/A
+- target_description: N/A (Krajcik mentorship)
+- target_type: N/A
+- ideology_claimed: Terrorgram accelerationism
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; terrorgram
+- primary_platforms: Telegram (Terrorgram core)
+- direct_contact_other_attackers: Krajcik (Bratislava 2022 perpetrator) — mentor
+- how_disrupted: Slovak police + international cooperation post-Krajcik attack
+- sentence: Slovak terror charges
+- cross_references: Slovak prosecutors; ARC
+- key_sources: ARC 2023 Kupper/Rekawek/Kriner
+- evidence_tier: 1
+- notes: Slovak-side of the Terrorgram mentor/mentee network that produced Krajcik.
+
+### USA-2024-HUMBER
+- event_date: 2024-09-06
+- event_year: 2024
+- country: USA
+- city: nationwide
+- venue: N/A (Terrorgram Collective leadership)
+- venue_type: N/A
+- perp_name: Dallas Humber; Matthew Allison
+- perp_age: 34
+- perp_sex: mixed (Humber F, Allison M)
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: N/A (meta-canon; propaganda / incitement / solicitation)
+- method_primary: N/A
+- target_description: Terrorgram Collective — incited attacks, produced manifestos audio-narrated + visual canon / "hitlists" / training materials
+- target_type: political
+- ideology_claimed: White-supremacist accelerationism; Terrorgram
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; terrorgram
+- manifesto_exists: Y
+- manifesto_title: "Hard Reset" (Terrorgram publication); "White Terror"; canon publications
+- manifesto_format: multimodal (audiobook narrations + PDF canon + Telegram channel network + "Militant Accelerationism" pubs)
+- manifesto_platform: Telegram (Terrorgram core); Rumble; Odysee
+- primary_platforms: Telegram (central); Rumble; Odysee; 4chan; Sessions
+- direct_contact_other_attackers: Krajcik (audiobook-narrated his manifesto); Kucukyetim; Rupnow-adjacent circles; Casap
+- how_disrupted: DOJ indictment Sept 2024 (14 counts)
+- sentence: pending trial; 9 foreign conspirators linked in DOJ docs
+- cross_references: DOJ; ADL; ARC; GNET; GW
+- key_sources: DOJ indictment 14-count Sept 2024; PBS FRONTLINE/ProPublica 2025 "The Rise and Fall of Terrorgram"; ADL backgrounder
+- evidence_tier: 1
+- notes: META-CANON CASE. Humber/Allison are the first US federal prosecution of individuals for producing the canonization INFRASTRUCTURE itself — audiobook narrations of prior saints' manifestos, hitlists, training materials. Solicitation-of-violence + RICO-adjacent framework. Central to the Saints-Score validation for 2024-2025 cases.
+
+### USA-2024-PAFFENDORF
+- event_date: 2024-12-16 (Rupnow day)
+- event_year: 2024
+- country: USA
+- city: Carlsbad (CA)
+- venue: federal/state government buildings (target)
+- venue_type: government
+- perp_name: Alexander Paffendorf
+- perp_age: 20
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: firearms; body armor (prepared alongside Rupnow plot)
+- method_primary: firearm
+- target_description: coordinated Carlsbad CA government-building attack on same day as Rupnow's Madison attack
+- target_type: government
+- ideology_claimed: accelerationist; TCC + Terrorgram fusion
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; tcc; nve
+- primary_platforms: Discord (private "Cage"-style server with Rupnow); Telegram Terrorgram-adjacent
+- direct_contact_other_attackers: Rupnow (Madison 2024) — DOJ indictment confirms coordination; distal link to Kucukyetim + Henderson circle
+- how_disrupted: FBI + LAPD execution of search warrant at time of Rupnow attack; recovered Rupnow's manifesto + Paffendorf's parallel materials
+- sentence: pending (federal charges filed Dec 2024)
+- cross_references: DOJ; ADL; ARC
+- key_sources: DOJ indictment Dec 2024; ADL briefing
+- evidence_tier: 1
+- notes: DOJ indictment explicitly documents Rupnow ↔ Paffendorf coordination — the cleanest peer-coordinated dual-plot case in the dataset. Single most important "network-visible" foiled plot of 2024.
+
+### USA-2025-CASAP-WI
+- event_date: 2025-03-19
+- event_year: 2025
+- country: USA
+- city: Wisconsin
+- venue: school (target)
+- venue_type: school
+- perp_name: Alexe Casap
+- perp_age: 20
+- perp_sex: trans_MtF
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: firearms (in plot preparation)
+- method_primary: firearm
+- target_description: WI school attack — explicitly cited Rupnow and Henderson as inspirations
+- target_type: school_random
+- ideology_claimed: accelerationist; TCC + Terrorgram fusion
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; tcc; nve
+- manifesto_exists: Y
+- manifesto_title: "Accelerate the Collapse"
+- manifesto_format: text
+- manifesto_platform: Discord / Telegram
+- primary_platforms: Discord; Telegram (TCC + Terrorgram-adjacent); same circles as Rupnow/Henderson
+- direct_contact_other_attackers: Rupnow (named as inspiration); Henderson (named); distal to Kucukyetim circle
+- named_prior_attackers_incoming: Rupnow; Henderson; Tarrant (Christchurch); Krajcik (explicit)
+- incoming_citation_count: 4
+- how_disrupted: FBI tip from Discord chat leak
+- sentence: pending federal charges
+- cross_references: DOJ; ADL
+- key_sources: DOJ arrest affidavit Mar 2025
+- evidence_tier: 1
+- notes: Explicitly names Rupnow + Henderson as inspirations — the first foiled plot where the Rupnow canon is textually active.
+
+### USA-2024-TAKHISTOV
+- event_date: 2024-06-11
+- event_year: 2024
+- country: USA
+- city: Nashville (TN)
+- venue: energy-infrastructure (planned attack targets)
+- venue_type: other
+- perp_name: Skyler Philippi / Takhistov (Takhistov is paired case — GE energy-infra plot)
+- perp_age: 24
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: explosives (planned); AR-15 stockpile
+- method_primary: explosive
+- target_description: US energy substations — accelerationist infrastructure-attack plot
+- target_type: other
+- ideology_claimed: accelerationist; O9A adjacent
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; atomwaffen; o9a
+- primary_platforms: Telegram Terrorgram circles
+- how_disrupted: FBI UC
+- sentence: pending
+- cross_references: DOJ; GNET
+- evidence_tier: 1
+- notes: Part of 2023-2024 substation-attack plot cluster; O9A-tied. Important for understanding NVE (nihilistic violent extremism) spread beyond conventional accelerationism.
+
+### USA-2025-ALLEN-FL
+- event_date: 2025-04-02
+- event_year: 2025
+- country: USA
+- city: Florida
+- venue: mosque (target, reconnaissance)
+- venue_type: religious_site
+- perp_name: Damien Blade Allen
+- perp_age: 25
+- perp_sex: M
+- perp_ethnicity: White
+- perp_nationality: USA
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: firearms + IED components
+- method_primary: mixed
+- target_description: FL mosque; Tarrant replication
+- target_type: religious
+- ideology_claimed: accelerationist; Great Replacement
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; great_replacement; terrorgram
+- named_prior_attackers_incoming: Tarrant; Rupnow; Timofey K
+- incoming_citation_count: 3
+- how_disrupted: FBI tip
+- sentence: pending
+- cross_references: DOJ; ADL
+- evidence_tier: 2
+
+### DEU-2024-SACHSISCHE
+- event_date: 2024-11-05
+- event_year: 2024
+- country: Germany
+- city: Sachsen
+- venue: multi-target (planned)
+- venue_type: multi_site
+- perp_name: "Sachsische Separatisten" cell (8 arrested)
+- perp_sex: M
+- perp_ethnicity: German
+- perp_nationality: Germany
+- status: F
+- fatalities_total_incl_perp: 0
+- fatalities_excl_perp: 0
+- perp_died: N
+- total_casualties: 0
+- weapons_primary: firearms stockpile; explosives
+- method_primary: firearm
+- target_description: establish Nazi ethnostate on "Day X"; kill political opponents + migrants
+- target_type: mixed
+- ideology_claimed: neo-Nazi accelerationism
+- ideology_assessed: confirmed
+- subculture_tags: accelerationist; atomwaffen
+- how_disrupted: BKA raids Nov 2024 (11 raids)
+- sentence: pending
+- cross_references: BfV; Europol TE-SAT 2025
+- evidence_tier: 1

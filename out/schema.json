@@ -1,0 +1,199 @@
+{
+  "columns": {
+    "case_id": "String",
+    "source_file": "String",
+    "event_date": "Date",
+    "event_year": "Int64",
+    "country": "String",
+    "city": "String",
+    "venue": "String",
+    "venue_type": "String",
+    "perp_name": "String",
+    "perp_age": "Int64",
+    "perp_sex": "String",
+    "perp_ethnicity": "String",
+    "perp_nationality": "String",
+    "perp_mental_health_flag": "String",
+    "status": "String",
+    "fatalities_total_incl_perp": "Int64",
+    "fatalities_excl_perp": "Int64",
+    "perp_died": "String",
+    "total_casualties": "Int64",
+    "weapons_primary": "String",
+    "method_primary": "String",
+    "target_description": "String",
+    "target_type": "String",
+    "ideology_claimed": "String",
+    "ideology_assessed": "String",
+    "saints_relevance": "String",
+    "saints_tradition": "String",
+    "sentence": "String",
+    "cross_references": "String",
+    "key_sources": "String",
+    "evidence_tier": "Int64",
+    "notes": "String",
+    "ideology_contested": "String",
+    "weapon_modifications": "String",
+    "subculture_tags": "String",
+    "manifesto_exists": "String",
+    "manifesto_title": "String",
+    "manifesto_length_pages": "Int64",
+    "manifesto_format": "String",
+    "manifesto_language": "String",
+    "manifesto_platform": "String",
+    "clothing_gear": "String",
+    "pre_attack_selfies": "String",
+    "primary_online_handles": "String",
+    "primary_platforms": "String",
+    "named_prior_attackers_incoming": "String",
+    "incoming_citation_count": "Int64",
+    "named_by_subsequent_attackers": "String",
+    "outgoing_citation_count": "Int64",
+    "anniversary_attack": "String",
+    "anniversary_of": "String",
+    "documented_searches": "String",
+    "audit_flags": "String",
+    "direct_contact_other_attackers": "String",
+    "prior_warning_signs": "String",
+    "weapon_inscriptions": "String",
+    "saints_canon_validation_corpus": "String",
+    "mask_type": "String",
+    "music_during_attack": "String",
+    "livestream_attempted": "String",
+    "livestream_successful": "String",
+    "livestream_platform": "String",
+    "livestream_duration_min": "Int64",
+    "gamification_elements": "String",
+    "first_person_camera": "String",
+    "how_disrupted": "String"
+  },
+  "enum_domains": {
+    "anniversary_attack": [
+      "N",
+      "Y"
+    ],
+    "evidence_tier": [
+      "1",
+      "2",
+      "3"
+    ],
+    "first_person_camera": [
+      "N",
+      "Y"
+    ],
+    "gamification_elements": [
+      "N",
+      "Y"
+    ],
+    "ideology_contested": [
+      "N",
+      "Y"
+    ],
+    "livestream_attempted": [
+      "N",
+      "Y"
+    ],
+    "livestream_successful": [
+      "N",
+      "Partial",
+      "Y"
+    ],
+    "manifesto_exists": [
+      "N",
+      "Partial",
+      "Y"
+    ],
+    "method_primary": [
+      "arson",
+      "blade",
+      "explosive",
+      "firearm",
+      "mixed",
+      "other",
+      "vehicle"
+    ],
+    "perp_died": [
+      "N",
+      "Y"
+    ],
+    "perp_mental_health_flag": [
+      "Contested",
+      "N",
+      "Y"
+    ],
+    "perp_sex": [
+      "F",
+      "M",
+      "mixed",
+      "trans_FtM",
+      "trans_MtF"
+    ],
+    "prior_warning_signs": [
+      "N",
+      "Y"
+    ],
+    "saints_canon_validation_corpus": [
+      "N",
+      "Y"
+    ],
+    "saints_relevance": [
+      "contested",
+      "high",
+      "low",
+      "medium",
+      "medium_high",
+      "very_high"
+    ],
+    "saints_tradition": [
+      "columbine_fandom",
+      "core_farright",
+      "incel",
+      "jihadist",
+      "kolumbayn",
+      "misc",
+      "mixed",
+      "none",
+      "tcc"
+    ],
+    "status": [
+      "C",
+      "F",
+      "PF"
+    ],
+    "target_type": [
+      "community",
+      "disabled_persons",
+      "ethnic",
+      "family",
+      "lgbtq",
+      "mixed",
+      "other",
+      "police",
+      "political",
+      "random_public",
+      "religious",
+      "school_random",
+      "university_random",
+      "women",
+      "workplace"
+    ],
+    "venue_type": [
+      "entertainment",
+      "government",
+      "healthcare",
+      "multi_site",
+      "other",
+      "political",
+      "political_rally",
+      "public_space",
+      "religious_site",
+      "residence",
+      "retail",
+      "rural",
+      "school",
+      "transit",
+      "university",
+      "workplace"
+    ]
+  }
+}

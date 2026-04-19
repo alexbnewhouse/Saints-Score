@@ -1,0 +1,141 @@
+case_id,source,position
+JPN-2001-IKEDA,Japanese court records,0
+JPN-2001-IKEDA,Asahi Shimbun,0
+FIN-2007-JOKELA,Finnish Ministry of Justice Jokela investigation report 2009,0
+FIN-2007-JOKELA,Saarinen,0
+FIN-2007-JOKELA,Malkki,0
+JPN-2008-AKIHABARA,Slater & Galbraith 2011 EJCJS,0
+JPN-2008-AKIHABARA,"Ueno Chizuko 2009 ""Himote no Misoginii""",0
+FIN-2008-KAUHAJOKI,Finnish MOJ Kauhajoki investigation 2010,0
+FIN-2008-KAUHAJOKI,Malkki 2014,0
+FIN-2008-KAUHAJOKI,Lankford 2016,0
+DEU-2009-WINNENDEN,Baden-Württemberg Interior Ministry report 2009,0
+NOR-2011-BREIVIK,22 July Commission Report (NOU 2012:14),0
+NOR-2011-BREIVIK,Borchgrevink 2013,0
+NOR-2011-BREIVIK,Ravndal 2018,0
+USA-2012-AURORA,Court records CR2012-1522,0
+USA-2012-AURORA,Fenton/Rocky Mountain PBS investigation,0
+USA-2012-OAKCREEK,FBI post-incident,0
+USA-2012-OAKCREEK,ADL backgrounder,0
+USA-2012-OAKCREEK,SPLC Intelligence Report Fall 2012,0
+USA-2012-SANDYHOOK,CT State's Attorney Sedensky Report Nov 2013,0
+USA-2012-SANDYHOOK,Peter Lanza/Andrew Solomon New Yorker 2014,0
+USA-2012-SANDYHOOK,OCA report 2014,0
+USA-2014-ISLAVISTA,Santa Barbara Sheriff Report Feb 2015,0
+USA-2014-ISLAVISTA,"Hoffman, Ware & Shapiro 2020 SCT",0
+FRA-2015-HEBDO,French parliamentary inquiry reports,0
+USA-2015-CHARLESTON,FBI 302s,0
+USA-2015-CHARLESTON,DOJ sentencing memo,0
+USA-2015-CHARLESTON,Bell 2018,0
+SWE-2015-TROLLHATTAN,Swedish police Pilot report,0
+SWE-2015-TROLLHATTAN,Ranstorp ICCT,0
+FRA-2015-BATACLAN,Fenech-Pietrasanta Rapport,0
+USA-2015-SANBERN,FBI post-incident,0
+USA-2015-SANBERN,House Homeland Security report,0
+TUR-2016-ANKARA,Turkish MIT,0
+TUR-2016-ANKARA,Hurriyet,0
+DEU-2016-MUNICH,BKA report,0
+DEU-2016-MUNICH,LMU Munich forensic psych reports,0
+DEU-2016-MUNICH,Koehler 2017,0
+JPN-2016-SAGAMIHARA,Japanese court records,0
+JPN-2016-SAGAMIHARA,"Tokyo Shimbun ""Hissen"" column",0
+JPN-2016-SAGAMIHARA,J-Cast,0
+DEU-2016-BERLIN,Bundestag investigative committee report 2021,0
+CAN-2017-QUEBEC,Quebec Superior Court judgment,0
+CAN-2017-QUEBEC,Perliger 2020,0
+UK-2017-MANCHESTER,Saunders Inquiry reports 2022-2023,0
+ESP-2017-BARCELONA,Audiencia Nacional judgment,0
+USA-2017-LASVEGAS,LVMPD After-Action Report,0
+USA-2017-LASVEGAS,FBI BAU-1 Nov 2019,0
+USA-2017-SUTHERLAND,DOJ 2018 Sutherland Springs Report (USAF reporting failures),0
+ITA-2018-MACERATA,Italian court records,0
+USA-2018-PARKLAND,MSD Public Safety Commission Report 2019,0
+USA-2018-PARKLAND,DoE OIG,0
+CAN-2018-TORONTO,R. v. Minassian judgment (2021),0
+CAN-2018-TORONTO,Hoffman/Ware/Shapiro 2020,0
+USA-2018-SANTAFE,Texas state reports,0
+USA-2018-SANTAFE,court filings,0
+RUS-2018-KERCH,Russian IC official attribution,0
+RUS-2018-KERCH,Kruglova ICCT,0
+USA-2018-PITTSBURGH,USA v. Bowers trial transcripts 2023,0
+USA-2018-PITTSBURGH,ADL post-incident,0
+USA-2019-HASSON,DOJ detention memo 2019,0
+USA-2019-HASSON,sentencing docs,0
+NZL-2019-CHRISTCHURCH,NZ Royal Commission of Inquiry Dec 2020,0
+NZL-2019-CHRISTCHURCH,Macklin 2019 CTC Sentinel,0
+USA-2019-POWAY,US v. Earnest plea agreement 2021,0
+USA-2019-POWAY,Ware 2020 GNET,0
+JPN-2019-KYOANI,Kyoto District Court judgment,0
+USA-2019-ELPASO,FBI affidavit,0
+USA-2019-ELPASO,DOJ hate-crime plea 2023,0
+NOR-2019-BAERUM,Oslo District Court judgment 2020,0
+NOR-2019-BAERUM,Ravndal 2021,0
+DEU-2019-HALLE,Naumburg State Court judgment 2020,0
+DEU-2019-HALLE,Macklin 2019 CTC Sentinel,0
+DEU-2020-GRUPPES,BGH Federal Court of Justice 2023 verdict,0
+DEU-2020-HANAU,Hessian parliamentary investigative committee,0
+CAN-2020-NOVASCOTIA,MCC Final Report 7 vols (2023),0
+AUT-2020-VIENNA,Zerbes Report 2021,0
+RUS-2021-KAZAN,Investigative Committee (Bastrykin Nov 2021),0
+RUS-2021-KAZAN,Kruglova,0
+RUS-2021-KAZAN,Nikishin 2021 Lex Russica,0
+CAN-2021-LONDONON,R. v. Veltman judgment 2023,0
+UK-2021-PLYMOUTH,UK IOPC review,0
+UK-2021-PLYMOUTH,Plymouth inquest 2023,0
+USA-2021-OXFORD,Oakland County judgment 2023,0
+USA-2021-OXFORD,People v. Crumbley,0
+USA-2022-BUFFALO,NY AG Letitia James Investigative Report Oct 2022,0
+USA-2022-BUFFALO,US v. Gendron plea 2022,0
+USA-2022-UVALDE,TX House Investigative Committee Report Jul 2022,0
+USA-2022-UVALDE,DOJ Critical Incident Review Jan 2024,0
+JPN-2022-ABE,Nara District Court,0
+JPN-2022-ABE,Nara Prefectural Police forensic reports,0
+SVK-2022-BRATISLAVA,ARC 2023 Kupper/Rekawek/Kriner,0
+SVK-2022-BRATISLAVA,"PBS FRONTLINE/ProPublica ""Rise and Fall of Terrorgram"" 2025",0
+AUS-2022-WIEAMBILLA,Queensland Coroner's Inquest Terry Ryan (5-week 2024),0
+AUS-2022-WIEAMBILLA,final report pending,0
+USA-2023-NASHVILLE,MNPD reports 2024-2025,0
+USA-2023-NASHVILLE,TBI,0
+USA-2023-ALLEN,FBI-Dallas PIO,0
+USA-2023-ALLEN,ADL CoE analysis May 2023,0
+USA-2023-ALLEN,Bellingcat,0
+USA-2023-LEWISTON,ME Independent Commission Final Report Aug 2024,0
+CZE-2023-PRAGUE,Czech Police Commissioner,0
+CZE-2023-PRAGUE,iROZHLAS/CT24,0
+AUS-2024-BONDI,NSW Coroner's Inquest Final Report Oct 2025,0
+AUS-2024-WAKELEY,NSW Supreme Court proceedings,0
+MEX-2024-UTEG,Fiscalía de Jalisco,0
+MEX-2024-UTEG,Reforma/Proceso,0
+MEX-2024-UTEG,El País,0
+USA-2024-BUTLER,FBI post-incident briefings,0
+USA-2024-BUTLER,House Task Force on the Attempted Assassination,0
+UK-2024-SOUTHPORT,Southport Inquiry Final Report 2025,0
+UK-2024-SOUTHPORT,Prevent Learning Review 2024,0
+TUR-2024-ESKISEHIR,DOJ indictment of Paffendorf (Dec 2024),0
+TUR-2024-ESKISEHIR,"ARC ""Triangulating Terror"" Jan 2025",0
+TUR-2024-ESKISEHIR,GNET Insights,0
+USA-2024-HUMBER,DOJ indictment 14-count Sept 2024,0
+USA-2024-HUMBER,"PBS FRONTLINE/ProPublica 2025 ""The Rise and Fall of Terrorgram""",0
+USA-2024-HUMBER,ADL backgrounder,0
+USA-2024-MADISON,DOJ indictment of Alexander Paffendorf (Dec 2024),0
+USA-2024-MADISON,ADL backgrounder Dec 2024,0
+USA-2024-MADISON,"ARC ""Triangulating Terror"" Jan 2025",0
+USA-2024-MADISON,PBS FRONTLINE,0
+USA-2025-NEWORLEANS,FBI press conferences,0
+USA-2025-NEWORLEANS,DOJ/NOPD,0
+USA-2025-ANTIOCH,DOJ/MNPD post-incident,0
+USA-2025-ANTIOCH,ADL Jan 2025,0
+USA-2025-ANTIOCH,"ARC ""Triangulating Terror"" Jan 2025",0
+USA-2025-ANTIOCH,"PBS FRONTLINE/ProPublica ""The Rise and Fall of Terrorgram""",0
+SWE-2025-OREBRO,Swedish Police final report,0
+USA-2025-CASAP-WI,DOJ arrest affidavit Mar 2025,0
+USA-2025-FSU,FSU/Tallahassee Police after-incident briefings,0
+AUT-2025-GRAZ,Austrian prosecutorial briefings,0
+AUT-2025-GRAZ,Der Standard,0
+USA-2025-MINNEAPOLIS,FBI/MPD briefings,0
+USA-2025-MINNEAPOLIS,ADL Aug 2025,0
+RUS-2025-ODINTSOVO,Russian IC statements (Oct-Nov 2025),0
+RUS-2025-ODINTSOVO,ARC briefing on Terrorgram Russian expansion,0
+SVK-2022-BENADIK,ARC 2023 Kupper/Rekawek/Kriner,0
+USA-2024-PAFFENDORF,DOJ indictment Dec 2024,0
+USA-2024-PAFFENDORF,ADL briefing,0

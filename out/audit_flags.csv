@@ -1,0 +1,10 @@
+flag_id,claim,status,recommended_treatment
+1,Kato Akihabara 2008 → Minassian Toronto 2018 textual citation,UNSUPPORTED,"Minassian cited Rodger + ""4chan Sgt"" in court-filed materials, not Kato. Structural cognate only. Consumption-level JP→US contagion IS documented via Lanza (Sandy Hook catalog included Kato)."
+2,Uematsu Sagamihara 2016 → Tarrant Christchurch 2019 textual citation,UNSUPPORTED,"Tarrant manifesto names Breivik, Roof, Traini, Lundin Pettersson, Lapshyn, Osborne, Bissonnette, Akerlund. Uematsu is not named. Structural cognate only."
+3,Tsushima Odakyu 2021 → Rodger textual citation,UNSUPPORTED,"Not confirmed in English-language court coverage. Motive statement ""saw a happy woman ~6 years ago"" is thematically incel but does not name Rodger. Structural parallel."
+4,Hattori Keio Joker 2021 → Holmes Aurora direct reference,UNSUPPORTED,"Holmes' own ""Joker"" attribution is retracted NYPD-relayed rumor (Dark Knight Rises villain was Bane). Hattori's costume is clearly from 2019 Phillips/Phoenix ""Joker"" film. Second-order mythic Joker-memory only; no Holmes citation."
+5,"Afanaskina Bryansk 2023 → Hale/Klebold ""internet diary""",RETRACTED,"Russian investigators determined the ""internet diary"" was FABRICATED (uploaded after her death). No verified Hale admiration trail exists. Downgrade to ALLEGED/UNVERIFIED."
+6,Wieambilla Trains 2022 → Waco/Branch Davidian aesthetic,PARTIAL,Camouflaged bunker confirmed; direct Waco iconography in Train videos was not found in English primary sources. Recommend Queensland Coroner transcripts (Terry Ryan 5-week inquest 2024).
+7,"Kretschmer Winnenden 2009 → Krautchan ""Bernd from Bavaria"" chat",OFFICIALLY RETRACTED,German police officially retracted initial announcement. Treat as false.
+8,Kimura Kishida 2023 → Yamagami textual citation,STRUCTURAL ONLY,"Kimura refused to speak with police. Behavioral/thematic parallel only (same target class, same DIY-internet construction logic, 9-month interval). Flag as inferential."
+9,"Crépol 2023 ""on est là pour tuer les Blancs"" quote",UNSUPPORTED,"Eyewitness only, politically weaponized, not judicially confirmed. Flag ALLEGED."

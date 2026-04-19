@@ -1,0 +1,201 @@
+case_id,platform,position
+FIN-2007-JOKELA,YouTube,0
+FIN-2007-JOKELA,IRC,0
+JPN-2008-AKIHABARA,Megaview-Net mobile BBS,0
+FIN-2008-KAUHAJOKI,YouTube,0
+FIN-2008-KAUHAJOKI,IRC-Galleria,0
+DEU-2009-WINNENDEN,Counter-Strike online community,0
+NOR-2011-BREIVIK,Stormfront,0
+NOR-2011-BREIVIK,Gates of Vienna,0
+NOR-2011-BREIVIK,Jihad Watch,0
+NOR-2011-BREIVIK,document.no,0
+NOR-2011-BREIVIK,Fjordman blog comments,0
+USA-2012-AURORA,Adult Friend Finder,0
+USA-2012-AURORA,Match.com,0
+USA-2012-AURORA,online gaming,0
+USA-2012-OAKCREEK,Stormfront (registered),0
+USA-2012-OAKCREEK,Hammerskin Nation network,0
+USA-2012-SANDYHOOK,shockedbeyondbelief.com forum (school-shooter fandom),0
+USA-2012-SANDYHOOK,4chan /r9k/ (alleged),0
+USA-2012-SANDYHOOK,Encyclopedia Dramatica,0
+USA-2014-ISLAVISTA,PUAHate.com,0
+USA-2014-ISLAVISTA,ForeverAlone,0
+USA-2014-ISLAVISTA,"bodybuilding.com ""misc""",0
+FRA-2015-HEBDO,Buttes-Chaumont cell (pre-social-media),0
+DNK-2015-COPENHAGEN,Facebook,0
+USA-2015-CHARLESTON,Council of Conservative Citizens website,0
+USA-2015-CHARLESTON,Stormfront-adjacent,0
+AUT-2015-GRAZ-SUV,"Twitter (>2,500 followers",0
+AUT-2015-GRAZ-SUV,deleted all tweets and messages before attack except one),0
+SWE-2015-TROLLHATTAN,Facebook,0
+SWE-2015-TROLLHATTAN,Stormfront (limited),0
+FRA-2015-BATACLAN,encrypted Telegram,0
+FRA-2015-BATACLAN,ISIS Dabiq,0
+USA-2015-SANBERN,Facebook (private),0
+USA-2015-SANBERN,encrypted messaging,0
+USA-2016-PULSE,Facebook,0
+FRA-2016-MAGNANVILLE,Facebook,0
+FRA-2016-MAGNANVILLE,Telegram,0
+FRA-2016-NICE,minimal,0
+FRA-2016-NICE,recent ISIS content consumption on phone,0
+DEU-2016-MUNICH,Steam,0
+DEU-2016-MUNICH,gaming communities,0
+DEU-2016-MUNICH,Breivik-related YouTube videos,0
+DEU-2016-MUNICH,school-shooter fora,0
+JPN-2016-SAGAMIHARA,Twitter (alleged),0
+DEU-2016-BERLIN,Telegram,0
+DEU-2016-BERLIN,Abu Walaa network,0
+TUR-2017-REINA,Telegram,0
+CAN-2017-QUEBEC,Twitter,0
+CAN-2017-QUEBEC,Facebook,0
+UK-2017-FINSBURY,"Twitter (Tommy Robinson, Britain First, EDL content feeds)",0
+USA-2017-LASVEGAS,video poker forums (no extremist identifiable),0
+ITA-2018-MACERATA,Lega (failed candidacy),0
+USA-2018-PARKLAND,Instagram (racist/nazi content),0
+USA-2018-PARKLAND,YouTube,0
+CAN-2018-TORONTO,Reddit,0
+CAN-2018-TORONTO,4chan,0
+CAN-2018-TORONTO,incel forums,0
+RUS-2018-KERCH,VKontakte (member of Harris/Klebold fan clubs),0
+USA-2018-PITTSBURGH,Gab (primary),0
+USA-2018-PITTSBURGH,Stormfront,0
+USA-2018-PITTSBURGH,Daily Stormer,0
+USA-2018-PITTSBURGH,4chan /pol/,0
+USA-2019-HASSON,email drafts to self,0
+USA-2019-HASSON,minimal public social media,0
+NZL-2019-CHRISTCHURCH,8chan /pol/,0
+NZL-2019-CHRISTCHURCH,YouTube,0
+NZL-2019-CHRISTCHURCH,Facebook,0
+NZL-2019-CHRISTCHURCH,Discord,0
+NZL-2019-CHRISTCHURCH,Stormfront,0
+NZL-2019-CHRISTCHURCH,donated to Generation Identity,0
+USA-2019-POWAY,8chan /pol/,0
+USA-2019-POWAY,Discord,0
+USA-2019-POWAY,Bitchute,0
+USA-2019-ELPASO,8chan /pol/,0
+USA-2019-ELPASO,Instagram,0
+USA-2019-DAYTON,Twitter,0
+USA-2019-DAYTON,hardcore/metal scene,0
+USA-2019-CLIMO,Discord (AWD channels),0
+USA-2019-CLIMO,Telegram,0
+NOR-2019-BAERUM,Endchan,0
+NOR-2019-BAERUM,8chan /pol/,0
+NOR-2019-BAERUM,Discord,0
+DEU-2019-HALLE,Meguca,0
+DEU-2019-HALLE,8chan /pol/,0
+DEU-2019-HALLE,Kohlchan,0
+DEU-2019-HALLE,Twitch,0
+DEU-2019-HALLE,3D-printing gun community,0
+USA-2019-HOLZER,Facebook (extremist skinhead groups),0
+USA-2020-BASE,Wire,0
+USA-2020-BASE,Telegram,0
+USA-2020-BASE,The Base encrypted comms,0
+DEU-2020-HANAU,personal website,0
+DEU-2020-HANAU,YouTube,0
+USA-2020-MELZER,encrypted channels,0
+USA-2020-MELZER,O9A-linked Telegram,0
+FRA-2020-PATY,Twitter,0
+FRA-2020-PATY,WhatsApp (incl. Russian-speaker IP in Idlib HTS zone),0
+FRA-2020-NICECHURCH,minimal online output,0
+AUT-2020-VIENNA,Telegram ISIS channels,0
+AUT-2020-VIENNA,met European jihadists on Bratislava weapons-buying trip,0
+USA-2021-ATLANTA,Discord,0
+USA-2021-ATLANTA,Reddit,0
+USA-2021-ATLANTA,Southern Baptist purity-culture podcasts,0
+USA-2021-FEDEX,Facebook MLP groups,0
+RUS-2021-KAZAN,Telegram,0
+RUS-2021-KAZAN,VKontakte,0
+UK-2021-PLYMOUTH,YouTube,0
+UK-2021-PLYMOUTH,Reddit (incel/manosphere),0
+UK-2021-PLYMOUTH,4chan,0
+NZL-2021-LYNNMALL,Telegram,0
+RUS-2021-PERM,VKontakte,0
+NOR-2021-KONGSBERG,"YouTube (2017 video, old)",0
+USA-2021-OXFORD,Discord,0
+USA-2021-OXFORD,Instagram,0
+USA-2022-BUFFALO,4chan /pol/,0
+USA-2022-BUFFALO,"Discord (private ""Cage"" server)",0
+USA-2022-BUFFALO,Reddit,0
+USA-2022-BUFFALO,4chan /k/,0
+USA-2022-UVALDE,Yubo,0
+USA-2022-UVALDE,Instagram,0
+USA-2022-UVALDE,Discord,0
+USA-2022-UVALDE,Call of Duty gaming,0
+DNK-2022-COPENHAGEN,minimal,0
+USA-2022-HIGHLAND,YouTube,0
+USA-2022-HIGHLAND,Discord,0
+USA-2022-HIGHLAND,SoundCloud,0
+USA-2022-HIGHLAND,4chan,0
+JPN-2022-ABE,YouTube (DIY construction tutorials),0
+SVK-2022-BRATISLAVA,Terrorgram (Telegram) — central,0
+SVK-2022-BRATISLAVA,Twitter @NTMA0315,0
+SVK-2022-BRATISLAVA,4chan /pol/,0
+SVK-2022-BRATISLAVA,Endchan,0
+USA-2022-CLUBQ,gaming platforms,0
+USA-2022-CLUBQ,asianspider.com,0
+AUS-2022-WIEAMBILLA,YouTube,0
+USA-2023-NASHVILLE,Instagram,0
+USA-2023-NASHVILLE,YouTube,0
+USA-2023-NASHVILLE,Discord (mass-shooter-fandom),0
+JPN-2023-KISHIDA,Twitter,0
+USA-2023-ALLEN,Odnoklassniki / OK.ru (primary),0
+USA-2023-ALLEN,4chan,0
+USA-2023-ALLEN,Telegram,0
+USA-2023-ALLEN,incel forums,0
+USA-2023-JACKSONVILLE,4chan,0
+USA-2023-JACKSONVILLE,Soyjak-adjacent,0
+NLD-2023-ROTTERDAM,extensive prior social media containing violent content and animal-cruelty videos,0
+CZE-2023-PRAGUE,Telegram (Russian Kolumbayn channels),0
+CZE-2023-PRAGUE,imageboards,0
+USA-2024-TAKHISTOV,Telegram Terrorgram circles,0
+MEX-2024-UTEG,Twitter/X,0
+USA-2024-BUTLER,4chan,0
+USA-2024-BUTLER,Steam,0
+USA-2024-BUTLER,gaming communities,0
+USA-2024-BUTLER,limited social media presence,0
+UK-2024-SOUTHPORT,minimal distribution,0
+UK-2024-SOUTHPORT,gun-school fandom imageboards and search history,0
+TUR-2024-ESKISEHIR,Telegram (Terrorgram + Turkish-language adjacent channels),0
+TUR-2024-ESKISEHIR,imageboards,0
+USA-2024-APALACHEE,Discord,0
+USA-2024-APALACHEE,online gaming,0
+DEU-2024-MUNICHCONSULATE,Islamic State sympathetic Telegram,0
+DEU-2024-MUNICHCONSULATE,prior Lower-Austria arrest,0
+USA-2024-HUMBER,Telegram (central),0
+USA-2024-HUMBER,Rumble,0
+USA-2024-HUMBER,Odysee,0
+USA-2024-HUMBER,4chan,0
+USA-2024-HUMBER,Sessions,0
+USA-2024-MADISON,Discord,0
+USA-2024-MADISON,4chan,0
+USA-2024-MADISON,fandom-wiki/TCC Instagram,0
+USA-2024-MADISON,private Telegram shared with Paffendorf,0
+DEU-2024-MAGDEBURG,Twitter/X (active),0
+DEU-2024-MAGDEBURG,extensive anti-German government conspiracy content,0
+USA-2025-NEWORLEANS,Facebook (5 pre-attack videos),0
+USA-2025-LASVEGAS,private emails to Shawn Ryan podcast,0
+USA-2025-LASVEGAS,minimal public social,0
+USA-2025-ANTIOCH,Discord (multiple TCC + Terrorgram-adjacent servers),0
+USA-2025-ANTIOCH,4chan,0
+USA-2025-ANTIOCH,Telegram,0
+USA-2025-ANTIOCH,TCC fandom Instagram,0
+USA-2025-ANTIOCH,Rumble,0
+USA-2025-CASAP-WI,Discord,0
+USA-2025-CASAP-WI,Telegram (TCC + Terrorgram-adjacent),0
+USA-2025-CASAP-WI,same circles as Rupnow/Henderson,0
+USA-2025-FSU,Discord,0
+USA-2025-FSU,Reddit,0
+USA-2025-FSU,extensive ChatGPT sessions preserved,0
+AUT-2025-GRAZ,gaming communities (Counter-Strike,0
+AUT-2025-GRAZ,"""Korosyosa/Koroshiyasa"" username)",0
+AUT-2025-GRAZ,Discord,0
+AUT-2025-GRAZ,minimal public presence,0
+MEX-2025-CCHSUR,Discord,0
+MEX-2025-CCHSUR,X,0
+MEX-2025-CCHSUR,Twitter incel community,0
+RUS-2025-ODINTSOVO,Telegram (Russian Kolumbayn),0
+RUS-2025-ODINTSOVO,Terrorgram-adjacent,0
+RUS-2025-ODINTSOVO,4chan,0
+SVK-2022-BENADIK,Telegram (Terrorgram core),0
+USA-2024-PAFFENDORF,"Discord (private ""Cage""-style server with Rupnow)",0
+USA-2024-PAFFENDORF,Telegram Terrorgram-adjacent,0

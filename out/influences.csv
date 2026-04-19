@@ -1,0 +1,47 @@
+edge_id,source_case_id,target_case_id,evidence_tier,citation_type,source_attribution,notes
+NET-001,TUR-2024-ESKISEHIR,USA-2024-MADISON,2,structural_cognate,"ARC ""Triangulating Terror"" Jan 2025; DOJ Paffendorf indictment Dec 2024",Rupnow's Terrorgram-adjacent channels overlapped with Kucukyetim's. No direct communication proven but shared community.
+NET-002,USA-2024-MADISON,USA-2024-PAFFENDORF,1,coordinated_plot,DOJ indictment of Alexander Paffendorf Dec 2024,Rupnow and Paffendorf coordinated parallel attacks via private Discord server. Paffendorf targeted Carlsbad CA government buildings same day as Rupnow's Madison attack. DOJ indictment explicitly documents contact + planning logs.
+NET-003,TUR-2024-ESKISEHIR,USA-2025-ANTIOCH,1,mentor_relationship,Henderson's own manifesto + Discord logs cited in DOJ/MNPD/ADL briefings Jan 2025,"Henderson self-identified Kucukyetim (""Goldson TheDude Sincapgrad"" / ""Cin Sincap"") as his mentor. Discord contact documented."
+NET-004,USA-2024-MADISON,USA-2025-ANTIOCH,1,manifesto_named,"Henderson manifesto ""The Enemy's Blueprint"" + weapon inscriptions",Rupnow explicitly in Henderson's inscription list.
+NET-005,USA-2024-MADISON,USA-2025-MINNEAPOLIS,1,weapon_inscribed,FBI/MPD post-incident Aug 2025; ADL briefing,"""NATALIE RUPNOW"" explicitly inscribed on Westman's weapons. Cleanest attacker-to-attacker citation post-Rupnow."
+NET-006,USA-2025-ANTIOCH,USA-2025-CASAP-WI,1,manifesto_named,"Casap manifesto ""Accelerate the Collapse""; DOJ affidavit Mar 2025",Casap explicitly names Henderson as co-inspiration.
+NET-007,USA-2024-MADISON,USA-2025-CASAP-WI,1,manifesto_named,Casap manifesto,Casap explicitly cites Rupnow.
+NET-008,TUR-2024-ESKISEHIR,RUS-2025-ODINTSOVO,1,weapon_inscribed,Russian IC statements Oct-Nov 2025; ARC briefing,Timofey K's imitation pistol explicitly inscribed Kucukyetim — the first Russian-language attacker to explicitly cite a Turkish accelerationist. Closes the Russia-West Terrorgram loop.
+NET-009,SVK-2022-BRATISLAVA,USA-2025-CASAP-WI,1,manifesto_named,Casap manifesto,Krajcik's Terrorgram-canonical status means he is cited in virtually every 2024-2025 accelerationist plot.
+NET-010,SVK-2022-BENADIK,SVK-2022-BRATISLAVA,1,mentor_relationship,ARC 2023; Slovak prosecutors,Benadik (Slovakbro) was identified as Krajcik's mentor on Terrorgram.
+NET-101,NOR-2011-BREIVIK,USA-2015-CHARLESTON,2,aesthetic_replication,"Roof manifesto ""The Last Rhodesian""",Structural parallel (manifesto + politicized mass-casualty aspiration). Roof did not name Breivik explicitly.
+NET-102,NOR-2011-BREIVIK,NZL-2019-CHRISTCHURCH,1,manifesto_named,"Tarrant manifesto ""The Great Replacement""","Tarrant claims brief email contact with Breivik; court records did not fully verify but manifesto cites Breivik as primary inspiration + acknowledges ""blessing"" of Knights Templar framework."
+NET-103,USA-2015-CHARLESTON,NZL-2019-CHRISTCHURCH,1,manifesto_named,Tarrant manifesto,Roof named in Tarrant manifesto's dedication list.
+NET-104,NZL-2019-CHRISTCHURCH,USA-2019-POWAY,1,manifesto_named,Earnest manifesto,Earnest names Tarrant explicitly as primary model.
+NET-105,NZL-2019-CHRISTCHURCH,USA-2019-ELPASO,1,manifesto_named,"Crusius manifesto ""The Inconvenient Truth""","Crusius names Christchurch: ""inspired by the Christchurch shooter""."
+NET-106,NZL-2019-CHRISTCHURCH,DEU-2019-HALLE,1,aesthetic_replication,Balliet manifesto + Twitch livestream,Balliet cites Tarrant + Earnest + Bowers + Crusius in order. Gamified helmet-cam + livestream template = direct Tarrant replication.
+NET-107,NZL-2019-CHRISTCHURCH,USA-2022-BUFFALO,1,manifesto_named,Gendron 180-page manifesto (heavily plagiarized from Tarrant),Gendron manifesto verbatim-copies large sections of Tarrant's. Primary citation.
+NET-108,NZL-2019-CHRISTCHURCH,SVK-2022-BRATISLAVA,1,manifesto_named,"Krajcik ""A Call to Arms""; Twitter handle @NTMA0315","Krajcik self-identifies as ""Saint Tarrant's 6th Disciple"". Handle literally is ""March 15"" (Tarrant date)."
+NET-109,USA-2022-BUFFALO,SVK-2022-BRATISLAVA,1,manifesto_named,"Krajcik ""A Call to Arms""","Krajcik names Gendron as ""the final nail in the coffin""."
+NET-150,ITA-2018-MACERATA,NZL-2019-CHRISTCHURCH,1,weapon_inscribed,NZ Royal Commission of Inquiry 2020,"""Luca Traini"" inscribed on firearm."
+NET-151,SWE-2015-TROLLHATTAN,NZL-2019-CHRISTCHURCH,1,weapon_inscribed,NZ Royal Commission,"""Anton Lundin Pettersson"" inscribed."
+NET-152,CAN-2017-QUEBEC,NZL-2019-CHRISTCHURCH,1,weapon_inscribed,NZ Royal Commission,"""Alexandre Bissonnette"" inscribed."
+NET-153,UK-2017-FINSBURY,NZL-2019-CHRISTCHURCH,1,weapon_inscribed,NZ Royal Commission,"""Darren Osborne"" inscribed."
+NET-201,USA-2014-ISLAVISTA,CAN-2018-TORONTO,1,manifesto_named,Minassian Facebook post minutes before attack,"""Supreme Gentleman Elliot Rodger"" explicit."
+NET-202,USA-2014-ISLAVISTA,UK-2021-PLYMOUTH,1,manifesto_named,Davison YouTube + Reddit,Davison explicitly names Rodger.
+NET-203,USA-2014-ISLAVISTA,MEX-2025-CCHSUR,1,manifesto_named,Lex Ashton Discord/X posts in Spanish,Spanish-language Rodger canon translation.
+NET-301,RUS-2018-KERCH,RUS-2021-KAZAN,1,aesthetic_replication,Russian Investigative Committee (Bastrykin Nov 2021),"IC explicitly named Kolumbayn subcultural trend. БОГ mask + ""HATRED"" T-shirt lineage."
+NET-302,RUS-2021-KAZAN,RUS-2021-PERM,1,manifesto_named,"Bekmansurov VK post ""My Anger""",CLEANEST textual citation in Russian Kolumbayn chain. Bekmansurov explicitly cites Galyaviev by name.
+NET-303,RUS-2018-KERCH,RUS-2022-IZHEVSK,2,aesthetic_replication,Russian IC statements; Kazantsev's HATE-inscribed magazines + Harris/Klebold keychains,"Aesthetic replication; Roslyakov T-shirt language (""HATE"") replicated."
+NET-304,RUS-2018-KERCH,CZE-2023-PRAGUE,2,structural_cognate,Czech Police + iROZHLAS; Kozak's Telegram channel subscriptions,Kozak subscribed to Russian-language Kolumbayn Telegram channels explicitly covering Kazan + Izhevsk + Afanaskina cases.
+NET-305,RUS-2018-KERCH,RUS-2025-ODINTSOVO,2,aesthetic_replication,Russian IC; ARC briefing,НЕНАВИСТЬ iconography persists. Kolumbayn tradition actively invoked.
+NET-401,USA-2012-SANDYHOOK,USA-2023-NASHVILLE,2,searched_for,MNPD + TBI-released materials 2025,Hale's writings extensively reference Sandy Hook alongside Columbine.
+NET-402,USA-2012-SANDYHOOK,USA-2024-MADISON,1,searched_for,ADL Dec 2024; DOJ affidavit,Rupnow's research explicitly referenced Lanza/Sandy Hook among TCC canon.
+NET-403,USA-2012-SANDYHOOK,USA-2025-MINNEAPOLIS,1,searched_for,FBI/MPD briefings Aug 2025,Westman references.
+NET-404,USA-2018-PARKLAND,USA-2025-ANTIOCH,1,manifesto_named,Henderson manifesto,Cruz named.
+NET-405,"USA-1999-COLUMBINE (out of dataset scope, pre-OECD window)",[many cases],1,searched_for,multiple,Out-of-scope for OECD 2001-2026 dataset; include as exogenous anchor: Columbine 1999 (Harris/Klebold) is the universal substrate for most school-shooter cases in this dataset. The task brief treats Columbine as a pre-dataset anchor.
+NET-501,JPN-2001-IKEDA,JPN-2008-AKIHABARA,2,anniversary,Japanese press commentary,Exactly 7 years to day. Widely noted as anniversary but no textual citation.
+NET-502,JPN-2019-KYOANI,JPN-2021-TOKUSHIMAACTY,1,manifesto_named,"Tokushima prosecutors; perpetrator Shigeru Okada told police ""imitating the Kyoto Animation incident""",Japanese arson contagion. Okada's Tokushima Acty Annex attack March 2021.
+NET-503,JPN-2022-ABE,JPN-2023-KISHIDA,3,structural_cognate,Japanese court assessment — NOT explicit citation. Kimura refused to speak with police.,"Structural parallel (same target class, DIY internet weapon, 9-month interval). Widely assumed inferential link."
+NET-504,JPN-2021-ODAKYU,JPN-2021-KEIO,1,manifesto_named,Japanese court,Hattori court-documented cited Odakyu as inspiration.
+NET-505,JPN-2008-AKIHABARA,USA-2012-SANDYHOOK,1,searched_for,CT State's Attorney Sedensky Report Nov 2013; OCA report 2014,Lanza's spreadsheet catalog of ~500 mass murderers explicitly included Kato Akihabara. Cleanest JP→US contagion link at consumption level.
+NET-601,KOR-2023-SILLIM,KOR-2023-BUNDANG,1,searched_for,Korean police confirmation,Choi searched Sillim coverage before rampage.
+NET-701,FRA-2016-NICE,DEU-2016-BERLIN,2,aesthetic_replication,Bundestag investigative committee report 2021,Structural template replication; 6-month delay.
+NET-702,FRA-2016-NICE,CAN-2018-TORONTO,2,aesthetic_replication,general press consensus,Method replication; Minassian's own ideological framing (incel) differs.
+NET-703,FRA-2016-NICE,DEU-2024-MAGDEBURG,2,aesthetic_replication,press consensus,Anomalous because Al-Abdulmohsen ideology is anti-Islam. Method-only contagion.
+NET-801,ITA-2018-MACERATA,NZL-2019-CHRISTCHURCH,1,weapon_inscribed + manifesto_named,NZ Royal Commission; Tarrant manifesto,Single most canonical Italian→NZ link.
