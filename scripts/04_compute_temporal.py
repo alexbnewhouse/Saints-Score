@@ -39,11 +39,13 @@ def main(config_path: str, dry_run: bool, limit: int | None) -> None:
 
     # ── Compute ──
     from saints_score.temporal.metrics import compute_daily_counts, compute_temporal_metrics
+
     temporal = compute_temporal_metrics(mentions, posts, cases, cfg)
 
     # ── Decay plots ──
     if not dry_run:
         from saints_score.viz.plots import plot_decay_curve
+
         daily = compute_daily_counts(mentions, posts)
         fig_dir = cfg.resolve(cfg.out_dir) / "figures" / "decay_per_attacker"
         for row in temporal.iter_rows(named=True):
@@ -51,13 +53,18 @@ def main(config_path: str, dry_run: bool, limit: int | None) -> None:
             if case_row.height > 0:
                 event_date = case_row["event_date"][0]
                 plot_decay_curve(
-                    daily, row["attacker_id"], event_date,
-                    row.get("alpha"), row.get("C"), fig_dir,
+                    daily,
+                    row["attacker_id"],
+                    event_date,
+                    row.get("alpha"),
+                    row.get("C"),
+                    fig_dir,
                 )
 
     run.metrics = {
         "n_attackers": temporal.height,
-        "fit_success_rate": temporal.filter(pl.col("fit_success")).height / max(temporal.height, 1),
+        "fit_success_rate": temporal.filter(pl.col("fit_success")).height
+        / max(temporal.height, 1),
     }
 
     if not dry_run:

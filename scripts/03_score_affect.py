@@ -49,6 +49,7 @@ def main(config_path: str, dry_run: bool, limit: int | None) -> None:
 
     # ── Run affect pipeline ──
     from saints_score.affect.classify import run_affect_pipeline
+
     affect = run_affect_pipeline(mentions, posts, cfg)
 
     run.metrics = {

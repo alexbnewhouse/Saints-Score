@@ -1,48 +1,233 @@
-# OECD Mass Violence Dataset — Bundle README
+# Saints Score
 
-**Compiled**: April 2026
-**Scope**: ~160 mass-violence events in OECD countries, 2001–2026
-**Framing**: aesthetic-contagion primary lens; ideological classification secondary
-**Purpose**: Ch. 3 "Saints Score" empirical chapter dataset for dissertation on computational political religion
+Quantifying attacker canonization in online extremist communities.
 
-## Files in this bundle
+Saints Score is a computational pipeline that measures the degree to which perpetrators of mass-casualty violence are elevated, celebrated, or "sainted" by 4chan's /pol/ board. It ingests the full /pol/ corpus, detects attacker mentions via multi-stage weak supervision, scores affective tone and temporal dynamics, and produces a Bayesian latent-variable index (the Saints Score) for each attacker in a dataset of ~160 OECD mass-violence events (2001--2026).
 
-| File | Contents | ~Lines |
-|------|----------|-------|
-| `part01_schema_and_2001-2015.md` | Full schema + variable dictionary + source hierarchy + 17 cases 2001–2015 | 800 |
-| `part02_2016-2017.md` | 20 cases 2016–2017 | 615 |
-| `part03_2018-2019.md` | 22 cases 2018–2019 (Christchurch year) | 884 |
-| `part04_2020-2021.md` | 22 cases 2020–2021 | 749 |
-| `part05_2022.md` | 12 cases 2022 (Buffalo, Bratislava, Wieambilla) | 443 |
-| `part06_2023.md` | 20 cases 2023 (Prague, Nashville, Jacksonville) | 716 |
-| `part07_2024.md` | 14 cases 2024 (Eskisehir, Rupnow, Southport) | 493 |
-| `part08_2025-2026.md` | 14 cases 2025–2026 (Henderson, Örebro, Graz, Odintsovo) | 516 |
-| `part09_foiled_plots.md` | 16 foiled pre-attack plots (Humber/Allison, Paffendorf, Casap) | ~500 |
-| `part10_network_analysis.md` | Directional citation/influence network edges — DIFFERENT schema | ~350 |
-| `part11_audit_and_gaps.md` | 9 audit corrections + data gaps + validation corpus | ~200 |
-| `part12_conversion_prompt.md` | **Prompt to hand to coding agent** for CSV/JSON conversion | ~250 |
+This project supports Chapter 3 of a dissertation on computational political religion.
 
-## How to use
+## Pipeline overview
 
-1. **Review the schema** in `part01` (top ~100 lines).
-2. **Parse the 9 audit corrections** in `part11` — these are flagged citation claims from the original research task briefs that did NOT hold up to primary-source verification and should NOT be treated as documented contagion links.
-3. **Hand `part12_conversion_prompt.md`** together with all the `part0X.md` files to a coding agent (Alex's stack: OpenCode CLI + Devstral). That prompt specifies exactly how to convert the markdown into `cases.csv`, `influences.csv`, and auxiliary long-format tables.
+The pipeline runs in seven sequential phases. Each phase is a standalone CLI script that reads upstream outputs and writes structured Parquet or CSV artifacts. Every run is logged with config snapshots, input/output hashes, and timing.
+
+| Phase | Script | What it does |
+|-------|--------|--------------|
+| 1 | `scripts/01_ingest_pol.py` | Stream-decompress the 4plebs /pol/ tar.gz, parse and normalize posts, write partitioned Parquet (year/month). Also validates the case dataset. |
+| 2 | `scripts/02_detect_mentions.py` | Multi-stage mention detection: seed alias inventory, lexical retrieval (exact + fuzzy), semantic retrieval, LLM adjudication (Ollama), alias bootstrapping (up to 3 rounds). |
+| 3 | `scripts/03_score_affect.py` | Classify sentiment (XLM-RoBERTa), emotion (GoEmotions), and toxicity on mention posts. |
+| 4 | `scripts/04_compute_temporal.py` | Compute intensity (mention proportion in immediate window), longevity (power-law decay fit), and daily mention time series per attacker. |
+| 5 | `scripts/05_compute_semantic.py` | Embed mention posts with `nomic-embed-text-v1.5`, compute pairwise cosine similarity (semantic convergence) per attacker. |
+| 6 | `scripts/06_assemble_saints_score.py` | Assemble the composite Saints Score in two forms: a naive scaled composite and a one-factor Bayesian confirmatory model (PyMC) with 89% HDIs. |
+| 7 | `scripts/07_fit_attack_regression.py` | Hierarchical Bayesian regression of Saints Score on attack characteristics (ideology, weapon, manifesto, livestream, casualties) with partial pooling on ideology and country. |
+
+## The case dataset
+
+The `out/` directory ships with a pre-built dataset of ~159 cases derived from 12 hand-coded markdown files (`part01`--`part12`). The conversion pipeline is:
+
+1. **`convert.py`** -- Parses the `partXX_*.md` files into structured CSV/Parquet (`out/cases.csv`, `out/influences.csv`, plus auxiliary tables for platforms, handles, subculture tags, cross-references, etc.).
+2. **`audit.py`** -- Validates every field against the schema (type checks, enum membership, range constraints). Flags issues in `out/audit_flags.csv`.
+3. **`apply_audit.py`** -- Applies evidence-tier corrections, fills `how_disrupted` for partially-foiled cases, and produces the final `out/cases_audited.csv`.
+
+The audited cases file is what Phase 1 ingests. See `docs/codebook.md` for the full variable dictionary.
+
+### Key output files
+
+| File | Description |
+|------|-------------|
+| `out/cases_audited.csv` | Final case dataset (159 cases, ~70 columns) |
+| `out/influences.csv` | Directed attacker-to-attacker citation/influence edges |
+| `out/cross_references.csv` | Cross-reference links between cases |
+| `out/subculture_tags.csv` | Long-format subculture/tradition tags per case |
+| `out/validation_corpus.csv` | Cases marked for hand-coded mention validation |
+| `out/schema.json` | Machine-readable schema definition |
+
+## Requirements
+
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) (package manager)
+- ~16 GB RAM for full /pol/ ingest; GPU recommended for Phases 2--5
+- [Ollama](https://ollama.com/) running locally with `gemma3:27b` for LLM adjudication (Phase 2)
+
+### Data dependencies (not in git)
+
+| Path | What | How to obtain |
+|------|------|---------------|
+| `data/pol/pol.csv.tar.gz` | 4plebs /pol/ archive dump | [4plebs.org](https://4plebs.org/) data request |
+| `data/raw/` | Any additional raw data | Manual placement |
+
+## Setup
+
+```bash
+# Clone and enter
+git clone <repo-url> && cd Saints-Score
+
+# Create environment and install all dependencies (byte-reproducible via uv.lock)
+make env
+
+# Install pre-commit hooks
+uv run pre-commit install
+
+# Verify
+make test-unit
+make lint
+make typecheck
+```
+
+## Running the pipeline
+
+Each phase reads from `config.toml`. Override any setting via environment variables prefixed `SAINTS_` (e.g., `SAINTS_SEED=123`).
+
+```bash
+# Phase 1: Ingest /pol/ + validate cases
+make ingest                      # full run
+make cases                       # cases only (no /pol/ tar needed)
+
+# Phase 2: Mention detection
+make mentions
+
+# Phase 3: Affect scoring
+make affect
+
+# Phase 4: Temporal metrics
+make temporal
+
+# Phase 5: Semantic convergence
+make semantic
+
+# Phase 6: Saints Score assembly
+make score
+
+# Phase 7: Regression
+make regression
+```
+
+Every script supports `--dry-run` (parse without writing) and `--limit N` (process only N rows, for smoke testing):
+
+```bash
+uv run python scripts/01_ingest_pol.py --config config.toml --limit 10000 --dry-run
+```
+
+## Configuration
+
+All tuning parameters, model IDs, paths, and temporal windows are centralized in `config.toml` under the `[saints_score]` table. The Pydantic Settings class (`src/saints_score/config.py`) merges values in this priority order:
+
+1. Explicit kwargs
+2. `SAINTS_*` environment variables
+3. `config.toml` values
+4. Hardcoded defaults
+
+Key settings:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `seed` | `20260414` | Global random seed |
+| `embedding_model` | `nomic-ai/nomic-embed-text-v1.5` | Sentence embedding model |
+| `adjudicator_model` | `gemma3:27b` | Ollama model for mention adjudication |
+| `fuzzy_threshold` | `85` | RapidFuzz ratio threshold for fuzzy alias matching |
+| `mention_confidence_threshold` | `0.5` | Minimum LLM confidence to accept a mention |
+| `immediate_end` | `7` | Immediate post-attack window (days) |
+| `longterm_end` | `730` | Long-term window end (days, ~2 years) |
+
+## Project structure
+
+```
+Saints-Score/
+├── config.toml                  # Pipeline configuration
+├── Makefile                     # Common entry points
+├── pyproject.toml               # Package metadata + tool config
+│
+├── src/saints_score/            # Core library
+│   ├── config.py                # Pydantic Settings (centralized config)
+│   ├── logging.py               # Loguru setup
+│   ├── affect/classify.py       # Sentiment, emotion, toxicity classifiers
+│   ├── cases/loader.py          # Case dataset loading + Pandera validation
+│   ├── ingest/pol.py            # /pol/ tar.gz → partitioned Parquet
+│   ├── io/                      # Parquet I/O, tar streaming, run logging
+│   ├── mentions/                # Alias building, lexical/semantic retrieval,
+│   │                            #   LLM adjudication, bootstrapping
+│   ├── models/regression.py     # Hierarchical Bayesian regression (PyMC)
+│   ├── scoring/composite.py     # Naive + Bayesian Saints Score
+│   ├── semantic/convergence.py  # Embedding similarity metrics
+│   ├── temporal/metrics.py      # Intensity, longevity, decay fitting
+│   └── viz/plots.py             # Decay curves, forest plots, comparison plots
+│
+├── scripts/                     # CLI entrypoints (01--07), one per phase
+│
+├── convert.py                   # Markdown dataset → CSV/Parquet conversion
+├── audit.py                     # Schema audit of raw cases
+├── apply_audit.py               # Apply audit corrections → cases_audited.csv
+│
+├── out/                         # Pre-built case dataset + pipeline outputs
+│
+├── partXX_*.md                  # Hand-coded case dataset (12 parts)
+│
+├── tests/
+│   ├── conftest.py              # Shared fixtures (Settings, sample cases/posts)
+│   ├── unit/                    # 36 unit tests (config, ingest, IO, aliases,
+│   │                            #   scoring, lexical, affect, temporal,
+│   │                            #   adjudication, convergence)
+│   └── integration/             # Integration tests (marked, need data)
+│
+└── docs/
+    ├── codebook.md              # Variable definitions + temporal windows
+    ├── decisions.md             # Architecture Decision Records (ADR-001 to 007)
+    ├── mention_detection.md     # Multi-stage mention detection protocol
+    └── scoring.md               # Naive + Bayesian scoring methodology
+```
+
+## Scoring methodology
+
+The Saints Score is computed in two complementary forms:
+
+**Naive Saints Score** -- A scaled composite:
+
+```
+Saints_a = z(log((E+ + eps) / (E- + eps))) * (I* + L* + S*)
+```
+
+where E+/E- are positive/negative sentiment proportions, I is intensity (immediate-window mention share), L is longevity (inverse power-law decay rate), and S is semantic convergence (median pairwise cosine similarity). All components are min-max scaled; the affect ratio is z-scored.
+
+**Bayesian Saints Score** -- A one-factor confirmatory model in PyMC treating the Saints Score as a latent variable with five indicators (log affect ratio, intensity, longevity, semantic convergence, log mention volume). Returns posterior mean factor scores with 89% HDIs per attacker. See `docs/scoring.md` for full specification.
+
+## Development
+
+```bash
+make lint          # Ruff linter + formatter check
+make fmt           # Auto-format
+make typecheck     # mypy strict
+make test          # All tests
+make test-unit     # Unit tests only
+make clean         # Remove __pycache__, .mypy_cache, etc.
+```
+
+Ruff is configured for Python 3.12 with 99-char line length. mypy runs in strict mode with Pydantic plugin. Pre-commit hooks run ruff and basic file hygiene on every commit.
+
+Optional visualization dependencies (plotnine, seaborn) are in the `viz` extra:
+
+```bash
+uv pip install -e ".[viz]"
+```
+
+## Design decisions
+
+Key architectural choices are documented in `docs/decisions.md`:
+
+- **ADR-001**: Embedding model -- `nomic-embed-text-v1.5` (permissive license, good on social media text)
+- **ADR-002**: LLM adjudicator -- Gemma 3 27B via Ollama (local, no API costs)
+- **ADR-003**: Emotion taxonomy -- GoEmotions 27 categories, reported as Plutchik-8 aggregates
+- **ADR-004**: Unit of analysis -- Post-level primary, thread-level as robustness check
+- **ADR-005**: Preregistration freeze -- H1--H3 tests and regression specs frozen before Phase 6 unblinding
+- **ADR-006**: Post-2021 attackers -- Out-of-sample for /pol/ corpus (dump ends 2021-12)
+- **ADR-007**: Foiled attacks -- TBD, surfaced with metadata pending decision
 
 ## Known limitations
 
-- Geographic coverage: heavy on US/Europe/Japan/Russia/Korea/Australia. Thin on Latin American OECD members, Baltic states, Greece/Portugal.
-- Most recent cases (Odintsovo Oct 2025, Anapa Feb 2026) have limited primary-source documentation.
-- Russian juvenile cases (Afanaskina, Timofey K, Orda) have publication restrictions limiting evidence transparency.
-- Evidence tiers are conservative — 1 = court/coroner/official only.
+- The /pol/ corpus dump ends December 2021. Post-2021 attackers appear in the case dataset but cannot receive Saints Scores from this corpus.
+- Geographic coverage is weighted toward US, Europe, Japan, Russia, Korea, and Australia. Latin American OECD members, Baltic states, and southern European countries are thin.
+- Most recent cases (2025--2026) have limited primary-source documentation.
+- Russian juvenile cases have publication restrictions that limit evidence transparency.
+- Evidence tiers are conservative: tier 1 requires court/coroner/official sources only.
 
-## Key framing decisions
+## License
 
-- **Aesthetic contagion is primary**: visual/material replication (weapons inscriptions, clothing, livestream formats, manifesto structures) is the central analytical object.
-- **Ideology is secondary**: assessed/claimed/contested variables capture the multi-dimensional nature.
-- **Cross-traditional cases highlighted**: Rupnow (Columbine-fandom + Terrorgram), Henderson (TCC + accelerationist + groyper), Timofey K (Kolumbayn + Terrorgram), Westman (TCC + anti-Catholic + gender-politicized).
-- **Null case preserved**: Paddock Las Vegas 2017 deliberately retained as falsification case for Saints Score (high kill count, zero ideology/aesthetic signature).
-- **Anomaly cases preserved**: Magdeburg 2024 (anti-Islam ex-Muslim attacks Christmas market) and Cauchi Bondi 2024 (schizophrenic attacker, inquest rejected incel framing) intentionally kept as stress-tests.
-
-## Task tracking
-
-Satisfies Dissertation Tracker task `Ch3 Saints Score: Build dataset of attacker canonization events` (page 334b96393f1381e6b7b2f076176e3b27, due 2027-04-01).
+MIT

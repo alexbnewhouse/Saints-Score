@@ -52,7 +52,9 @@ def lexical_candidate_retrieval(
                 alias_to_attacker[alias.lower()] = aid
 
     if not all_aliases:
-        logger.warning("No aliases long enough for matching (min len: {})", cfg.min_alias_token_len)
+        logger.warning(
+            "No aliases long enough for matching (min len: {})", cfg.min_alias_token_len
+        )
         return pl.DataFrame(
             schema={
                 "post_id": pl.Int64,
@@ -67,29 +69,35 @@ def lexical_candidate_retrieval(
     pattern = "|".join(all_aliases)
     logger.info(
         "Lexical retrieval: {} aliases across {} attackers, pattern len {}",
-        len(all_aliases), len(alias_map), len(pattern),
+        len(all_aliases),
+        len(alias_map),
+        len(pattern),
     )
 
-    # Collect the posts we need (body_clean already lowercased)
+    # Push exact match filter into the lazy frame before collecting
+    exact_matches = (
+        posts.select(["post_id", "body_clean"])
+        .filter(pl.col("body_clean").str.contains(f"(?i)(?:{pattern})"))
+        .collect()
+    )
+
+    # Also collect unfiltered for fuzzy pass (needed below)
     posts_df = posts.select(["post_id", "body_clean"]).collect()
-
-    # Exact matches
-    exact_matches = posts_df.filter(
-        pl.col("body_clean").str.contains(f"(?i)(?:{pattern})")
-    )
 
     results: list[dict] = []
     for row in exact_matches.iter_rows(named=True):
         text = row["body_clean"].lower()
         for alias_lower, aid in alias_to_attacker.items():
             if alias_lower in text:
-                results.append({
-                    "post_id": row["post_id"],
-                    "attacker_id": aid,
-                    "alias_matched": alias_lower,
-                    "match_type": "exact_substring",
-                    "score": 1.0,
-                })
+                results.append(
+                    {
+                        "post_id": row["post_id"],
+                        "attacker_id": aid,
+                        "alias_matched": alias_lower,
+                        "match_type": "exact_substring",
+                        "score": 1.0,
+                    }
+                )
 
     # Phase 2: Fuzzy matching on posts NOT already matched
     matched_ids = {r["post_id"] for r in results}
@@ -98,7 +106,8 @@ def lexical_candidate_retrieval(
 
     # For fuzzy matching, check tokens against alias tokens
     long_aliases = [
-        (alias, aid) for alias, aid in alias_to_attacker.items()
+        (alias, aid)
+        for alias, aid in alias_to_attacker.items()
         if len(alias.split()) <= 3  # only fuzzy-match short aliases
     ]
 
@@ -106,7 +115,11 @@ def lexical_candidate_retrieval(
     # Process in batches to manage memory
     sample_size = min(unmatched.height, 500_000)
     if sample_size > 0 and long_aliases:
-        sample = unmatched.sample(n=sample_size, seed=20260414) if unmatched.height > sample_size else unmatched
+        sample = (
+            unmatched.sample(n=sample_size, seed=cfg.seed)
+            if unmatched.height > sample_size
+            else unmatched
+        )
         logger.info("Fuzzy matching {} posts against {} aliases", sample.height, len(long_aliases))
 
         for row in sample.iter_rows(named=True):
@@ -123,13 +136,15 @@ def lexical_candidate_retrieval(
                             continue
                         ratio = fuzz.ratio(token, atk)
                         if ratio >= cfg.fuzzy_threshold:
-                            fuzzy_results.append({
-                                "post_id": row["post_id"],
-                                "attacker_id": aid,
-                                "alias_matched": alias,
-                                "match_type": "fuzzy",
-                                "score": ratio / 100.0,
-                            })
+                            fuzzy_results.append(
+                                {
+                                    "post_id": row["post_id"],
+                                    "attacker_id": aid,
+                                    "alias_matched": alias,
+                                    "match_type": "fuzzy",
+                                    "score": ratio / 100.0,
+                                }
+                            )
                             break
                     else:
                         continue
@@ -149,6 +164,10 @@ def lexical_candidate_retrieval(
 
     df = pl.DataFrame(all_results)
     df = df.unique(subset=["post_id", "attacker_id"])
-    logger.info("Lexical retrieval: {} candidates ({} exact, {} fuzzy)",
-                df.height, len(results), len(fuzzy_results))
+    logger.info(
+        "Lexical retrieval: {} candidates ({} exact, {} fuzzy)",
+        df.height,
+        len(results),
+        len(fuzzy_results),
+    )
     return df

@@ -30,8 +30,6 @@ dependencies = [
     "rapidfuzz>=3.8",
     # Viz
     "matplotlib>=3.8",
-    "plotnine>=0.13",
-    "seaborn>=0.13",
     # Utilities
     "tomli>=2.0; python_version < '3.11'",
     "tqdm>=4.66",
@@ -46,6 +44,10 @@ dev = [
     "ruff>=0.4",
     "mypy>=1.10",
     "pre-commit>=3.7",
+]
+viz = [
+    "plotnine>=0.13",
+    "seaborn>=0.13",
 ]
 gpu = [
     "vllm>=0.4",

@@ -58,6 +58,7 @@ def main(
     # ── Stage 1: Seed aliases ──
     logger.info("=== Stage 1: Building seed alias inventory ===")
     from saints_score.mentions.aliases import build_seed_aliases, save_seed_aliases
+
     aliases = build_seed_aliases(cases)
     if not dry_run:
         save_seed_aliases(aliases, cfg)
@@ -65,6 +66,7 @@ def main(
     # ── Stage 2: Lexical retrieval ──
     logger.info("=== Stage 2: Lexical candidate retrieval ===")
     from saints_score.mentions.lexical import lexical_candidate_retrieval
+
     lex_candidates = lexical_candidate_retrieval(posts_lf, aliases, cfg)
     logger.info("Lexical candidates: {}", lex_candidates.height)
 
@@ -77,8 +79,12 @@ def main(
     logger.info("=== Stage 4: LLM adjudication ===")
     posts_df = posts_lf.collect()
     from saints_score.mentions.adjudicate import adjudicate_candidates, filter_mentions
+
     adjudicated = adjudicate_candidates(
-        lex_candidates, posts_df, cases, cfg,
+        lex_candidates,
+        posts_df,
+        cases,
+        cfg,
         max_candidates=limit,
     )
     mentions = filter_mentions(adjudicated, cfg)

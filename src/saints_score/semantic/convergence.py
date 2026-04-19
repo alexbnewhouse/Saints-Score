@@ -87,7 +87,7 @@ def compute_topic_concentration(
     labels = clusterer.fit_predict(embeddings)
 
     unique, counts = np.unique(labels, return_counts=True)
-    cluster_counts = {int(lbl): int(c) for lbl, c in zip(unique, counts, strict=False)}
+    cluster_counts = {int(lbl): int(c) for lbl, c in zip(unique, counts, strict=True)}
     noise = cluster_counts.pop(-1, 0)
     total = len(labels)
 
@@ -141,7 +141,9 @@ def compute_semantic_metrics(
         atk_posts = posts.filter(pl.col("post_id").is_in(atk_post_ids))
 
         if atk_posts.height < 5:
-            logger.warning("Attacker {} has only {} posts, skipping", attacker_id, atk_posts.height)
+            logger.warning(
+                "Attacker {} has only {} posts, skipping", attacker_id, atk_posts.height
+            )
             continue
 
         texts = atk_posts.select("body_clean").to_series().to_list()
@@ -158,20 +160,38 @@ def compute_semantic_metrics(
         # Unigram entropy
         entropy = compute_unigram_entropy(texts)
 
-        results.append({
-            "attacker_id": attacker_id,
-            "similarity_median": sim_stats["median"],
-            "similarity_iqr": sim_stats["iqr"],
-            "similarity_mean": sim_stats["mean"],
-            "similarity_std": sim_stats["std"],
-            "similarity_n": sim_stats["n"],
-            "n_clusters": topic_stats["n_clusters"],
-            "top3_cluster_proportion": topic_stats["top3_proportion"],
-            "noise_proportion": topic_stats["noise_proportion"],
-            "unigram_entropy": entropy,
-        })
+        results.append(
+            {
+                "attacker_id": attacker_id,
+                "similarity_median": sim_stats["median"],
+                "similarity_iqr": sim_stats["iqr"],
+                "similarity_mean": sim_stats["mean"],
+                "similarity_std": sim_stats["std"],
+                "similarity_n": sim_stats["n"],
+                "n_clusters": topic_stats["n_clusters"],
+                "top3_cluster_proportion": topic_stats["top3_proportion"],
+                "noise_proportion": topic_stats["noise_proportion"],
+                "unigram_entropy": entropy,
+            }
+        )
 
-    df = pl.DataFrame(results)
+    if not results:
+        df = pl.DataFrame(
+            schema={
+                "attacker_id": pl.Utf8,
+                "similarity_median": pl.Float64,
+                "similarity_iqr": pl.Float64,
+                "similarity_mean": pl.Float64,
+                "similarity_std": pl.Float64,
+                "similarity_n": pl.Int64,
+                "n_clusters": pl.Int64,
+                "top3_cluster_proportion": pl.Float64,
+                "noise_proportion": pl.Float64,
+                "unigram_entropy": pl.Float64,
+            }
+        )
+    else:
+        df = pl.DataFrame(results)
     out_path = cfg.resolve(cfg.data_processed) / "semantic_metrics.parquet"
     write_parquet(df, out_path)
     logger.info("Semantic metrics: {} attackers", df.height)

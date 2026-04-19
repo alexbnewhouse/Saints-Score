@@ -36,6 +36,7 @@ def main(config_path: str, dry_run: bool, limit: int | None) -> None:
         mentions = mentions.head(limit)
 
     from saints_score.semantic.convergence import compute_semantic_metrics
+
     semantic = compute_semantic_metrics(mentions, posts, cases, cfg)
 
     run.metrics = {"n_attackers": semantic.height}
@@ -44,8 +45,7 @@ def main(config_path: str, dry_run: bool, limit: int | None) -> None:
         run.hash_output(cfg.resolve(cfg.data_processed) / "semantic_metrics.parquet")
         summary_dir = run.save(cfg.runs)
         (summary_dir / "SUMMARY.md").write_text(
-            f"# Phase 5 — Semantic Convergence Summary\n\n"
-            f"- Attackers scored: {semantic.height}\n",
+            f"# Phase 5 — Semantic Convergence Summary\n\n- Attackers scored: {semantic.height}\n",
             encoding="utf-8",
         )
 

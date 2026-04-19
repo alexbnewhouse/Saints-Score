@@ -38,20 +38,24 @@ def build_seed_aliases(cases: pl.DataFrame) -> pl.DataFrame:
             continue
 
         # Canonical name
-        records.append({
-            "attacker_id": case_id,
-            "alias": perp_name.strip(),
-            "source": "canonical_name",
-        })
+        records.append(
+            {
+                "attacker_id": case_id,
+                "alias": perp_name.strip(),
+                "source": "canonical_name",
+            }
+        )
 
         # Last name only (if multi-word)
         parts = perp_name.strip().split()
         if len(parts) >= 2:
-            records.append({
-                "attacker_id": case_id,
-                "alias": parts[-1],
-                "source": "last_name",
-            })
+            records.append(
+                {
+                    "attacker_id": case_id,
+                    "alias": parts[-1],
+                    "source": "last_name",
+                }
+            )
 
         # Known aliases field
         aliases_raw = row.get("perp_aliases") or row.get("aliases")
@@ -59,11 +63,13 @@ def build_seed_aliases(cases: pl.DataFrame) -> pl.DataFrame:
             for alias in str(aliases_raw).split(";"):
                 alias = alias.strip()
                 if alias and alias.lower() not in ("null", "none", "n/a"):
-                    records.append({
-                        "attacker_id": case_id,
-                        "alias": alias,
-                        "source": "case_metadata",
-                    })
+                    records.append(
+                        {
+                            "attacker_id": case_id,
+                            "alias": alias,
+                            "source": "case_metadata",
+                        }
+                    )
 
         # Online handles
         handles = row.get("primary_online_handles")
@@ -71,22 +77,25 @@ def build_seed_aliases(cases: pl.DataFrame) -> pl.DataFrame:
             for handle in str(handles).split(";"):
                 handle = handle.strip()
                 if handle and handle.lower() not in ("null", "none", "n/a"):
-                    records.append({
-                        "attacker_id": case_id,
-                        "alias": handle,
-                        "source": "online_handle",
-                    })
+                    records.append(
+                        {
+                            "attacker_id": case_id,
+                            "alias": handle,
+                            "source": "online_handle",
+                        }
+                    )
 
     if not records:
-        return pl.DataFrame(
-            schema={"attacker_id": pl.Utf8, "alias": pl.Utf8, "source": pl.Utf8}
-        )
+        return pl.DataFrame(schema={"attacker_id": pl.Utf8, "alias": pl.Utf8, "source": pl.Utf8})
 
     df = pl.DataFrame(records)
     # Deduplicate
     df = df.unique(subset=["attacker_id", "alias"])
-    logger.info("Built seed alias inventory: {} aliases for {} attackers",
-                df.height, df["attacker_id"].n_unique())
+    logger.info(
+        "Built seed alias inventory: {} aliases for {} attackers",
+        df.height,
+        df["attacker_id"].n_unique(),
+    )
     return df
 
 

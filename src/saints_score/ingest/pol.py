@@ -26,33 +26,33 @@ if TYPE_CHECKING:
 # ── 4plebs CSV column mapping ──────────────────────────────────────────────
 # Columns from the 4plebs /pol/ dump (positions based on sample_header.txt)
 FOURPLEBS_COLS = [
-    "num",          # 0  — post number (globally unique)
-    "subnum",       # 1
-    "thread_num",   # 2  — thread OP number
-    "op",           # 3  — 1 if OP, 0 otherwise
-    "timestamp",    # 4  — unix epoch
-    "fourchan_date", # 5
-    "name",         # 6
-    "email",        # 7
-    "trip",         # 8
-    "title",        # 9
-    "comment",      # 10  — raw HTML post body
+    "num",  # 0  — post number (globally unique)
+    "subnum",  # 1
+    "thread_num",  # 2  — thread OP number
+    "op",  # 3  — 1 if OP, 0 otherwise
+    "timestamp",  # 4  — unix epoch
+    "fourchan_date",  # 5
+    "name",  # 6
+    "email",  # 7
+    "trip",  # 8
+    "title",  # 9
+    "comment",  # 10  — raw HTML post body
     "poster_hash",  # 11 — ephemeral per-thread poster ID
-    "poster_country", # 12
-    "media_filename", # 13
-    "media_w",      # 14
-    "media_h",      # 15
-    "preview_orig", # 16
-    "preview_w",    # 17
-    "preview_h",    # 18
-    "media_hash",   # 19
-    "media_orig",   # 20
-    "spoiler",      # 21
-    "deleted",      # 22
-    "capcode",      # 23
-    "exif",         # 24
-    "sticky",       # 25
-    "since4pass",   # 26
+    "poster_country",  # 12
+    "media_filename",  # 13
+    "media_w",  # 14
+    "media_h",  # 15
+    "preview_orig",  # 16
+    "preview_w",  # 17
+    "preview_h",  # 18
+    "media_hash",  # 19
+    "media_orig",  # 20
+    "spoiler",  # 21
+    "deleted",  # 22
+    "capcode",  # 23
+    "exif",  # 24
+    "sticky",  # 25
+    "since4pass",  # 26
 ]
 
 # Indices we actually need
@@ -146,19 +146,21 @@ def parse_chunk(rows: list[list[str]]) -> pl.DataFrame:
 
         has_image = bool(_safe_str(row[IDX_MEDIA_ORIG]) if len(row) > IDX_MEDIA_ORIG else None)
 
-        records.append({
-            "post_id": post_id,
-            "thread_id": _safe_int(row[IDX_THREAD]),
-            "board": "pol",
-            "timestamp_utc": ts_utc,
-            "poster_id": _safe_str(row[IDX_POSTER_HASH]),
-            "title": _safe_str(row[IDX_TITLE]),
-            "body": body,
-            "body_clean": body_clean,
-            "reply_to": replies,
-            "has_image": has_image,
-            "country_code": _safe_str(row[IDX_COUNTRY]),
-        })
+        records.append(
+            {
+                "post_id": post_id,
+                "thread_id": _safe_int(row[IDX_THREAD]),
+                "board": "pol",
+                "timestamp_utc": ts_utc,
+                "poster_id": _safe_str(row[IDX_POSTER_HASH]),
+                "title": _safe_str(row[IDX_TITLE]),
+                "body": body,
+                "body_clean": body_clean,
+                "reply_to": replies,
+                "has_image": has_image,
+                "country_code": _safe_str(row[IDX_COUNTRY]),
+            }
+        )
 
     if not records:
         return pl.DataFrame()
@@ -230,7 +232,7 @@ def ingest_pol(
     month_stats = (
         full_df.group_by(["year", "month"])
         .agg(
-            pl.count().alias("post_count"),
+            pl.len().alias("post_count"),
             pl.col("thread_id").n_unique().alias("unique_threads"),
             pl.col("body").str.len_bytes().mean().alias("mean_post_length_bytes"),
             pl.col("body").str.len_bytes().median().alias("median_post_length_bytes"),
@@ -252,14 +254,10 @@ def ingest_pol(
     if not dry_run:
         # Write partitioned Parquet
         write_partitioned(
-            full_df.drop(["year", "month"]),
+            full_df,
             out_dir,
             partition_cols=["year", "month"],
         )
-        # NOTE: re-add year/month to the written data since write_partitioned
-        # writes them as Hive partition keys, but we also wrote them to the
-        # DataFrame.  Actually write_partitioned drops them, so they live only
-        # in the directory structure — correct Hive behaviour.
 
         # Hash output files
         for pq in sorted(out_dir.rglob("*.parquet")):
@@ -273,9 +271,7 @@ def ingest_pol(
         # Write manifest
         manifest_path = cfg.resolve(cfg.data_interim) / "pol_manifest.json"
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
-        manifest_path.write_text(
-            json.dumps(manifest, indent=2, default=str), encoding="utf-8"
-        )
+        manifest_path.write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
         logger.info("Manifest written → {}", manifest_path)
 
     return manifest

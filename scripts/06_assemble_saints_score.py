@@ -37,6 +37,7 @@ def main(config_path: str, dry_run: bool, limit: int | None, skip_bayes: bool) -
 
     # ── Naïve score ──
     from saints_score.scoring.composite import compute_naive_score
+
     naive = compute_naive_score(affect, temporal, semantic, mentions, cfg)
     logger.info("Naïve scores computed for {} attackers", naive.height)
 
@@ -44,12 +45,14 @@ def main(config_path: str, dry_run: bool, limit: int | None, skip_bayes: bool) -
     bayes = None
     if not skip_bayes:
         from saints_score.scoring.composite import compute_bayesian_score
+
         bayes = compute_bayesian_score(affect, temporal, semantic, mentions, cfg)
         logger.info("Bayesian scores computed for {} attackers", bayes.height)
 
     # ── Comparison plot ──
     if bayes is not None and not dry_run:
         from saints_score.viz.plots import plot_saints_comparison
+
         fig_dir = cfg.resolve(cfg.out_dir) / "figures"
         plot_saints_comparison(naive, bayes, fig_dir)
 

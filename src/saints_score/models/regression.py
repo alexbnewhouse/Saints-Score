@@ -45,9 +45,7 @@ def prepare_regression_data(
     # Binary dummies
     for col in ["manifesto_exists", "livestream_successful"]:
         if col in merged.columns:
-            merged = merged.with_columns(
-                (pl.col(col) == "Y").cast(pl.Int8).alias(f"{col}_bin")
-            )
+            merged = merged.with_columns((pl.col(col) == "Y").cast(pl.Int8).alias(f"{col}_bin"))
 
     return merged
 
@@ -69,14 +67,24 @@ def fit_regression(
     N = len(y)
 
     # Encode categoricals
-    ideology_vals = data.get_column("saints_tradition").to_list() if "saints_tradition" in data.columns else ["none"] * N
+    ideology_vals = (
+        data.get_column("saints_tradition").to_list()
+        if "saints_tradition" in data.columns
+        else ["none"] * N
+    )
     unique_ideologies = sorted(set(ideology_vals))
-    ideology_idx = np.array([unique_ideologies.index(v) if v in unique_ideologies else 0 for v in ideology_vals])
+    ideology_idx = np.array(
+        [unique_ideologies.index(v) if v in unique_ideologies else 0 for v in ideology_vals]
+    )
     n_ideology = len(unique_ideologies)
 
-    country_vals = data.get_column("country").to_list() if "country" in data.columns else ["unknown"] * N
+    country_vals = (
+        data.get_column("country").to_list() if "country" in data.columns else ["unknown"] * N
+    )
     unique_countries = sorted(set(country_vals))
-    country_idx = np.array([unique_countries.index(v) if v in unique_countries else 0 for v in country_vals])
+    country_idx = np.array(
+        [unique_countries.index(v) if v in unique_countries else 0 for v in country_vals]
+    )
     n_country = len(unique_countries)
 
     # Continuous / binary predictors
@@ -100,7 +108,10 @@ def fit_regression(
 
     logger.info(
         "Regression: {} obs, {} predictors, {} ideologies, {} countries",
-        N, n_predictors, n_ideology, n_country,
+        N,
+        n_predictors,
+        n_ideology,
+        n_country,
     )
 
     with pm.Model():
@@ -131,7 +142,6 @@ def fit_regression(
         pm.Normal("y", mu=mu, sigma=sigma, observed=y)
 
         # Sample
-        np.random.seed(cfg.seed)
         trace = pm.sample(
             draws=n_samples,
             tune=n_tune,

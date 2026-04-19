@@ -39,6 +39,7 @@ def main(config_path: str, dry_run: bool, limit: int | None) -> None:
     cases = read_parquet(cfg.resolve(cfg.data_processed) / "cases.parquet")
 
     from saints_score.models.regression import fit_regression, prepare_regression_data
+
     data = prepare_regression_data(saints, cases)
     logger.info("Regression data: {} observations", data.height)
 
@@ -50,6 +51,7 @@ def main(config_path: str, dry_run: bool, limit: int | None) -> None:
 
     # Forest plot
     from saints_score.viz.plots import plot_regression_forest
+
     fig_dir = cfg.resolve(cfg.out_dir) / "figures"
     plot_regression_forest(coef_df, fig_dir)
 

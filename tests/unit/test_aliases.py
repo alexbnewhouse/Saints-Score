@@ -22,9 +22,11 @@ def test_build_seed_aliases(sample_cases: pl.DataFrame):
 
 
 def test_build_seed_aliases_empty():
-    df = pl.DataFrame({
-        "case_id": ["TEST-001"],
-        "perpetrator_name": [None],
-    })
+    df = pl.DataFrame(
+        {
+            "case_id": ["TEST-001"],
+            "perpetrator_name": [None],
+        }
+    )
     aliases = build_seed_aliases(df)
     assert aliases.height == 0

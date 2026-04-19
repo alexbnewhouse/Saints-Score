@@ -23,8 +23,15 @@ VALID_STATUSES = {"C", "PF", "F"}
 VALID_METHODS = {"firearm", "vehicle", "blade", "arson", "explosive", "mixed", "other"}
 VALID_RELEVANCE = {"low", "medium", "medium_high", "high", "very_high", "contested"}
 VALID_TRADITIONS = {
-    "core_farright", "incel", "kolumbayn", "columbine_fandom",
-    "tcc", "jihadist", "mixed", "none", "misc",
+    "core_farright",
+    "incel",
+    "kolumbayn",
+    "columbine_fandom",
+    "tcc",
+    "jihadist",
+    "mixed",
+    "none",
+    "misc",
 }
 
 
@@ -57,10 +64,15 @@ def load_cases(cfg: Settings) -> pl.DataFrame:
 
     # Type coercions
     int_cols = [
-        "event_year", "perp_age", "fatalities_total_incl_perp",
-        "fatalities_excl_perp", "total_casualties",
-        "incoming_citation_count", "outgoing_citation_count",
-        "manifesto_length_pages", "livestream_duration_min",
+        "event_year",
+        "perp_age",
+        "fatalities_total_incl_perp",
+        "fatalities_excl_perp",
+        "total_casualties",
+        "incoming_citation_count",
+        "outgoing_citation_count",
+        "manifesto_length_pages",
+        "livestream_duration_min",
         "evidence_tier",
     ]
     for col in int_cols:
@@ -69,9 +81,7 @@ def load_cases(cfg: Settings) -> pl.DataFrame:
 
     # Date parsing
     if "event_date" in df.columns:
-        df = df.with_columns(
-            pl.col("event_date").str.to_date("%Y-%m-%d", strict=False)
-        )
+        df = df.with_columns(pl.col("event_date").str.to_date("%Y-%m-%d", strict=False))
 
     # Validate required fields
     missing_case_id = df.filter(pl.col("case_id").is_null()).height
@@ -91,9 +101,15 @@ def load_cases(cfg: Settings) -> pl.DataFrame:
         logger.info("Year range: {} - {}", year_range[0], year_range[1])
 
     # Check duplicate case_ids
-    dupes = df.group_by("case_id").count().filter(pl.col("count") > 1)
+    dupes = df.group_by("case_id").len().filter(pl.col("len") > 1)
     if dupes.height > 0:
         logger.warning("Duplicate case_ids: {}", dupes["case_id"].to_list())
+
+    # Validate against Pandera schema (non-strict: extra columns allowed)
+    try:
+        CaseSchema.validate(df)
+    except pa.errors.SchemaError as e:
+        logger.warning("Pandera validation issues: {}", e)
 
     return df
 
@@ -112,15 +128,15 @@ def process_cases(cfg: Settings) -> tuple[pl.DataFrame, dict[str, Any]]:
     }
 
     if "status" in df.columns:
-        status_counts = df.group_by("status").count().sort("status")
+        status_counts = df.group_by("status").len().sort("status")
         report["status_distribution"] = {
-            r["status"]: r["count"] for r in status_counts.iter_rows(named=True)
+            r["status"]: r["len"] for r in status_counts.iter_rows(named=True)
         }
 
     if "saints_relevance" in df.columns:
-        rel_counts = df.group_by("saints_relevance").count().sort("saints_relevance")
+        rel_counts = df.group_by("saints_relevance").len().sort("saints_relevance")
         report["relevance_distribution"] = {
-            r["saints_relevance"]: r["count"] for r in rel_counts.iter_rows(named=True)
+            r["saints_relevance"]: r["len"] for r in rel_counts.iter_rows(named=True)
         }
 
     # Write processed Parquet

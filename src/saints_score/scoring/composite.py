@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 
 # ── Naïve Saints Score ───────────────────────────────────────────────────
 
+
 def _min_max_scale(series: pl.Series) -> pl.Series:
     """Min-max scale a series to [0, 1]."""
     mn = series.min()
@@ -69,9 +70,9 @@ def compute_naive_score(
 
     # Log ratio (z-scored)
     features = features.with_columns(
-        (
-            (pl.col("positive_ratio") + eps).log() - (pl.col("negative_ratio") + eps).log()
-        ).alias("log_affect_ratio")
+        ((pl.col("positive_ratio") + eps).log() - (pl.col("negative_ratio") + eps).log()).alias(
+            "log_affect_ratio"
+        )
     )
     mean_lar = features.select(pl.col("log_affect_ratio").mean()).item()
     std_lar = features.select(pl.col("log_affect_ratio").std()).item()
@@ -80,9 +81,7 @@ def compute_naive_score(
             ((pl.col("log_affect_ratio") - mean_lar) / std_lar).alias("log_affect_ratio_z")
         )
     else:
-        features = features.with_columns(
-            pl.lit(0.0).alias("log_affect_ratio_z")
-        )
+        features = features.with_columns(pl.lit(0.0).alias("log_affect_ratio_z"))
 
     # Min-max scale I, L, S
     I_scaled = _min_max_scale(features["intensity"])
@@ -99,7 +98,11 @@ def compute_naive_score(
     features = features.with_columns(
         (
             pl.col("log_affect_ratio_z")
-            * (pl.col("intensity_scaled") + pl.col("longevity_scaled") + pl.col("similarity_scaled"))
+            * (
+                pl.col("intensity_scaled")
+                + pl.col("longevity_scaled")
+                + pl.col("similarity_scaled")
+            )
         ).alias("saints_naive")
     )
 
@@ -133,7 +136,7 @@ def _aggregate_affect(
     agg = merged.group_by("attacker_id").agg(
         pl.col("sentiment_label").is_in(list(pos_labels)).sum().alias("n_positive"),
         pl.col("sentiment_label").is_in(list(neg_labels)).sum().alias("n_negative"),
-        pl.count().alias("n_total"),
+        pl.len().alias("n_total"),
     )
 
     agg = agg.with_columns(
@@ -145,6 +148,7 @@ def _aggregate_affect(
 
 
 # ── Bayesian Saints Score ────────────────────────────────────────────────
+
 
 def compute_bayesian_score(
     affect: pl.DataFrame,
@@ -167,18 +171,21 @@ def compute_bayesian_score(
     # Build indicator matrix
     affect_agg = _aggregate_affect(affect, mentions)
 
-    vol = (
-        mentions.group_by("attacker_id")
-        .agg(pl.count().alias("mention_volume"))
-    )
+    vol = mentions.group_by("attacker_id").agg(pl.len().alias("mention_volume"))
 
-    features = affect_agg.join(
-        temporal.select(["attacker_id", "intensity", "longevity"]),
-        on="attacker_id", how="outer_coalesce",
-    ).join(
-        semantic.select(["attacker_id", "similarity_median"]),
-        on="attacker_id", how="outer_coalesce",
-    ).join(vol, on="attacker_id", how="outer_coalesce")
+    features = (
+        affect_agg.join(
+            temporal.select(["attacker_id", "intensity", "longevity"]),
+            on="attacker_id",
+            how="outer_coalesce",
+        )
+        .join(
+            semantic.select(["attacker_id", "similarity_median"]),
+            on="attacker_id",
+            how="outer_coalesce",
+        )
+        .join(vol, on="attacker_id", how="outer_coalesce")
+    )
 
     features = features.fill_null(0.0)
 
@@ -200,13 +207,15 @@ def compute_bayesian_score(
         s = x.std()
         return (x - x.mean()) / s if s > 0 else np.zeros_like(x)
 
-    Y = np.column_stack([
-        _standardise(log_ratio),
-        _standardise(intensity),
-        _standardise(longevity),
-        _standardise(similarity),
-        _standardise(log_volume),
-    ])
+    Y = np.column_stack(
+        [
+            _standardise(log_ratio),
+            _standardise(intensity),
+            _standardise(longevity),
+            _standardise(similarity),
+            _standardise(log_volume),
+        ]
+    )
     indicator_names = ["log_affect_ratio", "intensity", "longevity", "similarity", "log_volume"]
 
     logger.info("Fitting Bayesian factor model: {} attackers, {} indicators", N, Y.shape[1])
@@ -231,7 +240,6 @@ def compute_bayesian_score(
             )
 
         # Sample
-        np.random.seed(cfg.seed)
         trace = pm.sample(
             draws=n_samples,
             tune=n_tune,
@@ -252,12 +260,14 @@ def compute_bayesian_score(
     lam_summary = az.summary(trace, var_names=["lambda"], hdi_prob=0.89)
     logger.info("Factor loadings:\n{}", lam_summary)
 
-    result = pl.DataFrame({
-        "attacker_id": attackers,
-        "saints_bayes_mean": means,
-        "saints_bayes_hdi_lo": hdi_vals[:, 0],
-        "saints_bayes_hdi_hi": hdi_vals[:, 1],
-    })
+    result = pl.DataFrame(
+        {
+            "attacker_id": attackers,
+            "saints_bayes_mean": means,
+            "saints_bayes_hdi_lo": hdi_vals[:, 0],
+            "saints_bayes_hdi_hi": hdi_vals[:, 1],
+        }
+    )
 
     out_path = cfg.resolve(cfg.out_dir) / "scores" / "saints_bayes.csv"
     out_path.parent.mkdir(parents=True, exist_ok=True)

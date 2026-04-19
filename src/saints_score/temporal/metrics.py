@@ -34,14 +34,12 @@ def compute_daily_counts(
     )
 
     # Extract date
-    mention_with_ts = mention_with_ts.with_columns(
-        pl.col("timestamp_utc").dt.date().alias("date")
-    )
+    mention_with_ts = mention_with_ts.with_columns(pl.col("timestamp_utc").dt.date().alias("date"))
 
     # Daily mention counts per attacker
     daily = (
         mention_with_ts.group_by(["attacker_id", "date"])
-        .agg(pl.count().alias("mention_count"))
+        .agg(pl.len().alias("mention_count"))
         .sort(["attacker_id", "date"])
     )
 
@@ -49,7 +47,7 @@ def compute_daily_counts(
     total_daily = (
         posts.with_columns(pl.col("timestamp_utc").dt.date().alias("date"))
         .group_by("date")
-        .agg(pl.count().alias("total_posts"))
+        .agg(pl.len().alias("total_posts"))
     )
 
     daily = daily.join(total_daily, on="date", how="left")
@@ -74,6 +72,7 @@ def compute_intensity(
             continue
 
         from datetime import date as date_type
+
         if isinstance(event_date, str):
             event_date = date_type.fromisoformat(event_date)
 
@@ -91,12 +90,14 @@ def compute_intensity(
 
         intensity = mentions_sum / total_sum if total_sum > 0 else 0.0
 
-        results.append({
-            "attacker_id": case_id,
-            "intensity": intensity,
-            "mentions_immediate": int(mentions_sum),
-            "total_posts_immediate": int(total_sum),
-        })
+        results.append(
+            {
+                "attacker_id": case_id,
+                "intensity": intensity,
+                "mentions_immediate": int(mentions_sum),
+                "total_posts_immediate": int(total_sum),
+            }
+        )
 
     return pl.DataFrame(results)
 
@@ -124,25 +125,27 @@ def fit_decay(
             continue
 
         from datetime import date as date_type
+
         if isinstance(event_date, str):
             event_date = date_type.fromisoformat(event_date)
 
         # Get mention data for this attacker post-attack
         atk_data = daily_counts.filter(
-            (pl.col("attacker_id") == case_id)
-            & (pl.col("date") > event_date)
+            (pl.col("attacker_id") == case_id) & (pl.col("date") > event_date)
         )
 
         if atk_data.height < 5:
-            results.append({
-                "attacker_id": case_id,
-                "longevity": None,
-                "alpha": None,
-                "alpha_se": None,
-                "C": None,
-                "n_days": atk_data.height,
-                "fit_success": False,
-            })
+            results.append(
+                {
+                    "attacker_id": case_id,
+                    "longevity": None,
+                    "alpha": None,
+                    "alpha_se": None,
+                    "C": None,
+                    "n_days": atk_data.height,
+                    "fit_success": False,
+                }
+            )
             continue
 
         # Compute days since attack
@@ -158,15 +161,17 @@ def fit_decay(
         y = y[mask]
 
         if len(tau) < 5:
-            results.append({
-                "attacker_id": case_id,
-                "longevity": None,
-                "alpha": None,
-                "alpha_se": None,
-                "C": None,
-                "n_days": len(tau),
-                "fit_success": False,
-            })
+            results.append(
+                {
+                    "attacker_id": case_id,
+                    "longevity": None,
+                    "alpha": None,
+                    "alpha_se": None,
+                    "C": None,
+                    "n_days": len(tau),
+                    "fit_success": False,
+                }
+            )
             continue
 
         # Cap to longterm window
@@ -187,26 +192,30 @@ def fit_decay(
             alpha_se = float(np.sqrt(np.diag(pcov))[1]) if pcov is not None else None
             longevity = 1.0 / alpha_fit if alpha_fit > 0 else None
 
-            results.append({
-                "attacker_id": case_id,
-                "longevity": longevity,
-                "alpha": alpha_fit,
-                "alpha_se": alpha_se,
-                "C": C_fit,
-                "n_days": len(tau),
-                "fit_success": True,
-            })
+            results.append(
+                {
+                    "attacker_id": case_id,
+                    "longevity": longevity,
+                    "alpha": alpha_fit,
+                    "alpha_se": alpha_se,
+                    "C": C_fit,
+                    "n_days": len(tau),
+                    "fit_success": True,
+                }
+            )
         except (RuntimeError, ValueError) as e:
             logger.warning("Decay fit failed for {}: {}", case_id, e)
-            results.append({
-                "attacker_id": case_id,
-                "longevity": None,
-                "alpha": None,
-                "alpha_se": None,
-                "C": None,
-                "n_days": len(tau),
-                "fit_success": False,
-            })
+            results.append(
+                {
+                    "attacker_id": case_id,
+                    "longevity": None,
+                    "alpha": None,
+                    "alpha_se": None,
+                    "C": None,
+                    "n_days": len(tau),
+                    "fit_success": False,
+                }
+            )
 
     return pl.DataFrame(results)
 
@@ -225,7 +234,7 @@ def compute_temporal_metrics(
     intensity = compute_intensity(daily, cases, cfg)
     decay = fit_decay(daily, cases, cfg)
 
-    temporal = intensity.join(decay, on="attacker_id", how="outer")
+    temporal = intensity.join(decay, on="attacker_id", how="outer_coalesce")
 
     out_path = cfg.resolve(cfg.data_processed) / "temporal_metrics.parquet"
     write_parquet(temporal, out_path)

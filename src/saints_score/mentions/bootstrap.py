@@ -78,12 +78,14 @@ def extract_candidate_aliases(
 
         scored.sort(key=lambda x: x[1], reverse=True)
         for token, score, count in scored[:top_n]:
-            results.append({
-                "attacker_id": attacker_id,
-                "candidate_alias": token,
-                "tfidf_score": round(score, 4),
-                "mention_count": count,
-            })
+            results.append(
+                {
+                    "attacker_id": attacker_id,
+                    "candidate_alias": token,
+                    "tfidf_score": round(score, 4),
+                    "mention_count": count,
+                }
+            )
 
     if not results:
         return pl.DataFrame(
@@ -96,6 +98,7 @@ def extract_candidate_aliases(
         )
 
     df = pl.DataFrame(results)
-    logger.info("Extracted {} candidate aliases for {} attackers",
-                df.height, df["attacker_id"].n_unique())
+    logger.info(
+        "Extracted {} candidate aliases for {} attackers", df.height, df["attacker_id"].n_unique()
+    )
     return df

@@ -53,7 +53,7 @@ def write_partitioned(
     for keys, part_df in groups.items():
         if not isinstance(keys, tuple):
             keys = (keys,)
-        parts = "/".join(f"{col}={val}" for col, val in zip(partition_cols, keys, strict=False))
+        parts = "/".join(f"{col}={val}" for col, val in zip(partition_cols, keys, strict=True))
         out_path = base_dir / parts / "part-0.parquet"
         out_path.parent.mkdir(parents=True, exist_ok=True)
         part_df.drop(partition_cols).write_parquet(out_path, compression=compression)

@@ -37,13 +37,20 @@ def iter_tar_csv_chunks(
         # Grab the first CSV member
         csv_member = None
         for member in tf:
+            # Reject path-traversal attempts (absolute paths or ..)
+            if member.name.startswith("/") or ".." in member.name:
+                continue
             if member.name.endswith(".csv"):
                 csv_member = member
                 break
         if csv_member is None:
             raise FileNotFoundError(f"No .csv file found inside {tar_path}")
 
-        logger.info("Streaming CSV member: {} ({:.1f} MB compressed)", csv_member.name, csv_member.size / 1e6)
+        logger.info(
+            "Streaming CSV member: {} ({:.1f} MB uncompressed)",
+            csv_member.name,
+            csv_member.size / 1e6,
+        )
 
         fobj = tf.extractfile(csv_member)
         if fobj is None:
@@ -62,7 +69,9 @@ def iter_tar_csv_chunks(
             chunk.append(row)
             if len(chunk) >= chunk_size:
                 total_rows += len(chunk)
-                logger.debug("Yielding chunk of {} rows (total so far: {})", len(chunk), total_rows)
+                logger.debug(
+                    "Yielding chunk of {} rows (total so far: {})", len(chunk), total_rows
+                )
                 yield chunk
                 chunk = []
 

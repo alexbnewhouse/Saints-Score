@@ -21,6 +21,8 @@ if TYPE_CHECKING:
 def _get_device() -> str:
     if torch.cuda.is_available():
         return "cuda"
+    if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        return "mps"
     return "cpu"
 
 
@@ -55,7 +57,7 @@ def score_sentiment(
     results = pipe(texts, batch_size=batch_size, top_k=None)
 
     records: list[dict[str, Any]] = []
-    for pid, result in zip(post_ids, results, strict=False):
+    for pid, result in zip(post_ids, results, strict=True):
         row: dict[str, Any] = {"post_id": pid}
         best_label = ""
         best_score = 0.0
@@ -104,7 +106,7 @@ def score_emotion(
     results = pipe(texts, batch_size=batch_size)
 
     records: list[dict[str, Any]] = []
-    for pid, result in zip(post_ids, results, strict=False):
+    for pid, result in zip(post_ids, results, strict=True):
         row: dict[str, Any] = {"post_id": pid}
         for item in result:
             label = item["label"].lower().replace(" ", "_")
@@ -145,7 +147,7 @@ def score_toxicity(
     results = pipe(texts, batch_size=batch_size)
 
     records: list[dict[str, Any]] = []
-    for pid, result in zip(post_ids, results, strict=False):
+    for pid, result in zip(post_ids, results, strict=True):
         row: dict[str, Any] = {"post_id": pid}
         for item in result:
             label = item["label"].lower().replace(" ", "_")

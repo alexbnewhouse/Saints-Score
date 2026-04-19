@@ -30,10 +30,33 @@ def test_parse_chunk_with_valid_rows():
     # Minimal row with enough columns
     rows = [
         [
-            "1001", "0", "1000", "1", "1553000000", "0",
-            "", "", "", "Test Title", "Hello <b>world</b>",
-            "poster1", "US", "", "", "", "", "", "", "", "img.jpg",
-            "", "", "", "", "", "",
+            "1001",
+            "0",
+            "1000",
+            "1",
+            "1553000000",
+            "0",
+            "",
+            "",
+            "",
+            "Test Title",
+            "Hello <b>world</b>",
+            "poster1",
+            "US",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "img.jpg",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
         ]
     ]
     df = parse_chunk(rows)

@@ -35,6 +35,7 @@ def main(config_path: str, dry_run: bool, limit: int | None, cases_only: bool) -
     # ── Cases ──
     logger.info("=== Processing case dataset ===")
     from saints_score.cases.loader import process_cases
+
     _cases_df, cases_report = process_cases(cfg)
     logger.info("Cases report: {}", json.dumps(cases_report, indent=2, default=str))
 

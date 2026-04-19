@@ -17,14 +17,16 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 # ── Style defaults ──────────────────────────────────────────────────────
-plt.rcParams.update({
-    "figure.dpi": 150,
-    "savefig.dpi": 300,
-    "savefig.bbox": "tight",
-    "font.size": 11,
-    "axes.titlesize": 13,
-    "axes.labelsize": 11,
-})
+plt.rcParams.update(
+    {
+        "figure.dpi": 150,
+        "savefig.dpi": 300,
+        "savefig.bbox": "tight",
+        "font.size": 11,
+        "axes.titlesize": 13,
+        "axes.labelsize": 11,
+    }
+)
 
 
 def _ensure_dir(path: Path) -> Path:
@@ -46,6 +48,7 @@ def plot_decay_curve(
         return out_dir
 
     from datetime import date as date_type
+
     if isinstance(event_date, str):
         event_date = date_type.fromisoformat(event_date)
 
@@ -80,7 +83,9 @@ def plot_saints_comparison(
 ) -> Path:
     """Scatter plot: naïve vs Bayesian Saints Score."""
     merged = naive_scores.select(["attacker_id", "saints_naive"]).join(
-        bayes_scores.select(["attacker_id", "saints_bayes_mean", "saints_bayes_hdi_lo", "saints_bayes_hdi_hi"]),
+        bayes_scores.select(
+            ["attacker_id", "saints_bayes_mean", "saints_bayes_hdi_lo", "saints_bayes_hdi_hi"]
+        ),
         on="attacker_id",
     )
 
@@ -96,8 +101,9 @@ def plot_saints_comparison(
     # Label points
     for i, name in enumerate(merged["attacker_id"].to_list()):
         short = name.split("-")[-1] if "-" in name else name
-        ax.annotate(short, (x[i], y[i]), fontsize=7, alpha=0.7,
-                    xytext=(3, 3), textcoords="offset points")
+        ax.annotate(
+            short, (x[i], y[i]), fontsize=7, alpha=0.7, xytext=(3, 3), textcoords="offset points"
+        )
 
     ax.set_xlabel("Naïve Saints Score")
     ax.set_ylabel("Bayesian Saints Score (mean ± 89% HDI)")
@@ -134,8 +140,9 @@ def plot_regression_forest(
     if hdi_lo_col and hdi_hi_col:
         lo = coef_df[hdi_lo_col[0]].to_numpy()
         hi = coef_df[hdi_hi_col[0]].to_numpy()
-        ax.errorbar(means, y_pos, xerr=[means - lo, hi - means],
-                    fmt="o", capsize=4, color="steelblue")
+        ax.errorbar(
+            means, y_pos, xerr=[means - lo, hi - means], fmt="o", capsize=4, color="steelblue"
+        )
     else:
         ax.scatter(means, y_pos, color="steelblue")
 

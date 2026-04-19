@@ -13,7 +13,25 @@ import polars as pl
 from saints_score.logging import logger
 
 if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer
+
     from saints_score.config import Settings
+
+# Module-level model cache to avoid reloading per call.
+_model_cache: dict[str, SentenceTransformer] = {}
+
+
+def _get_embedding_model(cfg: Settings) -> SentenceTransformer:
+    """Load (or return cached) SentenceTransformer model."""
+    from sentence_transformers import SentenceTransformer
+
+    key = f"{cfg.embedding_model}:{cfg.embedding_revision}"
+    if key not in _model_cache:
+        _model_cache[key] = SentenceTransformer(
+            cfg.embedding_model,
+            revision=cfg.embedding_revision or None,
+        )
+    return _model_cache[key]
 
 
 def build_attacker_probes(cases: pl.DataFrame) -> dict[str, list[str]]:
@@ -53,13 +71,7 @@ def embed_texts(
 
     Returns an (N, D) float32 array.
     """
-    from sentence_transformers import SentenceTransformer
-
-    model = SentenceTransformer(
-        cfg.embedding_model,
-        revision=cfg.embedding_revision or None,
-        trust_remote_code=True,
-    )
+    model = _get_embedding_model(cfg)
     bs = batch_size or cfg.embedding_batch_size
     logger.info("Embedding {} texts with {} (batch_size={})", len(texts), cfg.embedding_model, bs)
 
@@ -106,15 +118,17 @@ def semantic_candidate_retrieval(
 
         # Cosine similarity (embeddings already normalised)
         sims = post_embeddings @ centroid
-        topk_idx = np.argsort(sims)[-cfg.semantic_topk:][::-1]
+        topk_idx = np.argsort(sims)[-cfg.semantic_topk :][::-1]
 
         for idx in topk_idx:
-            results.append({
-                "post_id": post_ids[idx],
-                "attacker_id": attacker_id,
-                "similarity": float(sims[idx]),
-                "match_type": "semantic",
-            })
+            results.append(
+                {
+                    "post_id": post_ids[idx],
+                    "attacker_id": attacker_id,
+                    "similarity": float(sims[idx]),
+                    "match_type": "semantic",
+                }
+            )
 
     if not results:
         return pl.DataFrame(
@@ -127,6 +141,9 @@ def semantic_candidate_retrieval(
         )
 
     df = pl.DataFrame(results)
-    logger.info("Semantic retrieval: {} candidates across {} attackers",
-                df.height, df["attacker_id"].n_unique())
+    logger.info(
+        "Semantic retrieval: {} candidates across {} attackers",
+        df.height,
+        df["attacker_id"].n_unique(),
+    )
     return df
