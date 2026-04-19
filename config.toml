@@ -1,0 +1,52 @@
+[saints_score]
+# ── Reproducibility ──
+seed = 20260414
+
+# ── Paths ──
+data_raw = "data/raw"
+data_interim = "data/interim"
+data_processed = "data/processed"
+out_dir = "out"
+run_log_dir = "out/runs"
+
+# ── /pol/ ingest ──
+pol_tar_path = "data/pol/pol.csv.tar.gz"
+pol_parquet_dir = "data/interim/pol"
+ingest_chunk_size = 1_000_000
+
+# ── Cases ──
+cases_csv_path = "out/cases_audited.csv"
+
+# ── Embedding model ──
+embedding_model = "nomic-ai/nomic-embed-text-v1.5"
+embedding_revision = ""  # pin after first run
+embedding_batch_size = 256
+
+# ── LLM adjudicator (via Ollama) ──
+ollama_base_url = "http://localhost:11434"
+adjudicator_model = "gemma3:27b"
+
+# ── Sentiment / Emotion models ──
+sentiment_model = "cardiffnlp/twitter-xlm-roberta-base-sentiment"
+emotion_model = "SamLowe/roberta-base-go_emotions"
+toxicity_model = "unitary/unbiased-toxic-roberta"
+
+# ── Temporal windows (days) ──
+baseline_start = -365
+baseline_end = -1
+immediate_start = 0
+immediate_end = 7
+nearterm_start = 8
+nearterm_end = 90
+longterm_start = 91
+longterm_end = 730
+
+# ── Mention detection ──
+fuzzy_threshold = 85
+semantic_topk = 500
+min_alias_token_len = 4
+max_bootstrap_rounds = 3
+mention_confidence_threshold = 0.5
+
+# ── Scoring ──
+epsilon = 1e-6

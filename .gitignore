@@ -1,0 +1,36 @@
+# Data files (too large for git)
+data/raw/**/*.csv
+data/raw/**/*.tar.gz
+data/pol/*.tar.gz
+data/interim/
+data/processed/
+
+# Outputs that should be regenerated
+out/runs/
+out/models/*.nc
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Environment
+.env
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
