@@ -8,17 +8,18 @@ This project supports Chapter 3 of a dissertation on computational political rel
 
 ## Pipeline overview
 
-The pipeline runs in seven sequential phases. Each phase is a standalone CLI script that reads upstream outputs and writes structured Parquet or CSV artifacts. Every run is logged with config snapshots, input/output hashes, and timing.
+The pipeline runs in eight sequential phases via a unified CLI (`saints-score`). Each phase reads upstream outputs and writes structured Parquet or CSV artifacts. Every run is logged with config snapshots, input/output hashes, and timing.
 
-| Phase | Script | What it does |
-|-------|--------|--------------|
-| 1 | `scripts/01_ingest_pol.py` | Stream-decompress the 4plebs /pol/ tar.gz, parse and normalize posts, write partitioned Parquet (year/month). Also validates the case dataset. |
-| 2 | `scripts/02_detect_mentions.py` | Multi-stage mention detection: seed alias inventory, lexical retrieval (exact + fuzzy), semantic retrieval, LLM adjudication (Ollama), alias bootstrapping (up to 3 rounds). |
-| 3 | `scripts/03_score_affect.py` | Classify sentiment (XLM-RoBERTa), emotion (GoEmotions), and toxicity on mention posts. |
-| 4 | `scripts/04_compute_temporal.py` | Compute intensity (mention proportion in immediate window), longevity (power-law decay fit), and daily mention time series per attacker. |
-| 5 | `scripts/05_compute_semantic.py` | Embed mention posts with `nomic-embed-text-v1.5`, compute pairwise cosine similarity (semantic convergence) per attacker. |
-| 6 | `scripts/06_assemble_saints_score.py` | Assemble the composite Saints Score in two forms: a naive scaled composite and a one-factor Bayesian confirmatory model (PyMC) with 89% HDIs. |
-| 7 | `scripts/07_fit_attack_regression.py` | Hierarchical Bayesian regression of Saints Score on attack characteristics (ideology, weapon, manifesto, livestream, casualties) with partial pooling on ideology and country. |
+| Phase | Command | What it does |
+|-------|---------|-------------||
+| 1 | `saints-score ingest` | Stream-decompress the 4plebs /pol/ tar.gz, parse and normalize posts, write partitioned Parquet (year/month). Also validates the case dataset. |
+| 2 | `saints-score mentions` | Multi-stage mention detection: seed alias inventory, lexical retrieval (exact + fuzzy + adversarial normalisation), semantic retrieval, LLM adjudication (Ollama), alias bootstrapping (up to 3 rounds). |
+| 3 | `saints-score affect` | Classify sentiment (XLM-RoBERTa), emotion (GoEmotions), and toxicity on mention posts. GPU-accelerated with automatic batch sizing. |
+| 4 | `saints-score temporal` | Compute intensity (mention proportion in immediate window), longevity (power-law decay fit), and daily mention time series per attacker. |
+| 5 | `saints-score semantic` | Embed mention posts with `nomic-embed-text-v1.5` (fp16 on GPU), compute pairwise cosine similarity (semantic convergence) per attacker. |
+| 6 | `saints-score score` | Assemble the composite Saints Score in two forms: a naive scaled composite and a one-factor Bayesian confirmatory model (PyMC) with 89% HDIs. |
+| 7 | `saints-score regression` | Hierarchical Bayesian regression of Saints Score on attack characteristics (ideology, weapon, manifesto, livestream, casualties) with partial pooling on ideology and country. |
+| 8 | `saints-score drift` | ConTEXT-inspired embedding drift analysis: track centroid migration, dispersion changes, and evasion rates over sliding post-attack windows. |
 
 ## The case dataset
 
@@ -78,33 +79,29 @@ make typecheck
 Each phase reads from `config.toml`. Override any setting via environment variables prefixed `SAINTS_` (e.g., `SAINTS_SEED=123`).
 
 ```bash
-# Phase 1: Ingest /pol/ + validate cases
-make ingest                      # full run
-make cases                       # cases only (no /pol/ tar needed)
+# Run individual phases
+saints-score ingest --config config.toml
+saints-score mentions --config config.toml
+saints-score affect --config config.toml
+saints-score temporal --config config.toml
+saints-score semantic --config config.toml
+saints-score score --config config.toml
+saints-score regression --config config.toml
+saints-score drift --config config.toml
 
-# Phase 2: Mention detection
+# Run the entire pipeline end-to-end
+saints-score run-all --config config.toml
+
+# Make targets still work (they delegate to the CLI)
+make ingest
 make mentions
-
-# Phase 3: Affect scoring
-make affect
-
-# Phase 4: Temporal metrics
-make temporal
-
-# Phase 5: Semantic convergence
-make semantic
-
-# Phase 6: Saints Score assembly
-make score
-
-# Phase 7: Regression
-make regression
+make run-all
 ```
 
-Every script supports `--dry-run` (parse without writing) and `--limit N` (process only N rows, for smoke testing):
+Every command supports `--dry-run` (parse without writing) and `--limit N` (process only N rows, for smoke testing):
 
 ```bash
-uv run python scripts/01_ingest_pol.py --config config.toml --limit 10000 --dry-run
+saints-score ingest --config config.toml --limit 10000 --dry-run
 ```
 
 ## Configuration
@@ -137,21 +134,27 @@ Saints-Score/
 ├── pyproject.toml               # Package metadata + tool config
 │
 ├── src/saints_score/            # Core library
+│   ├── cli.py                   # Unified Click CLI (saints-score command)
+│   ├── __main__.py              # python -m saints_score entry point
 │   ├── config.py                # Pydantic Settings (centralized config)
 │   ├── logging.py               # Loguru setup
-│   ├── affect/classify.py       # Sentiment, emotion, toxicity classifiers
+│   ├── affect/classify.py       # Sentiment, emotion, toxicity (GPU auto-batch)
 │   ├── cases/loader.py          # Case dataset loading + Pandera validation
 │   ├── ingest/pol.py            # /pol/ tar.gz → partitioned Parquet
 │   ├── io/                      # Parquet I/O, tar streaming, run logging
 │   ├── mentions/                # Alias building, lexical/semantic retrieval,
-│   │                            #   LLM adjudication, bootstrapping
+│   │                            #   adversarial normalisation, LLM adjudication
+│   │   ├── adversarial.py       # Leetspeak, homoglyph, Zalgo, phonetic handling
+│   │   └── ...                  #   bootstrapping
 │   ├── models/regression.py     # Hierarchical Bayesian regression (PyMC)
 │   ├── scoring/composite.py     # Naive + Bayesian Saints Score
-│   ├── semantic/convergence.py  # Embedding similarity metrics
+│   ├── semantic/
+│   │   ├── convergence.py       # Embedding similarity metrics
+│   │   └── drift.py             # ConTEXT-inspired embedding drift analysis
 │   ├── temporal/metrics.py      # Intensity, longevity, decay fitting
 │   └── viz/plots.py             # Decay curves, forest plots, comparison plots
 │
-├── scripts/                     # CLI entrypoints (01--07), one per phase
+├── scripts/                     # Legacy CLI scripts (now delegated to cli.py)
 │
 ├── convert.py                   # Markdown dataset → CSV/Parquet conversion
 ├── audit.py                     # Schema audit of raw cases
@@ -219,6 +222,10 @@ Key architectural choices are documented in `docs/decisions.md`:
 - **ADR-005**: Preregistration freeze -- H1--H3 tests and regression specs frozen before Phase 6 unblinding
 - **ADR-006**: Post-2021 attackers -- Out-of-sample for /pol/ corpus (dump ends 2021-12)
 - **ADR-007**: Foiled attacks -- TBD, surfaced with metadata pending decision
+- **ADR-008**: Unified CLI -- Migrated from per-phase scripts to a single Click CLI group (`saints-score`)
+- **ADR-009**: Adversarial language normalisation -- Leetspeak, homoglyphs, Zalgo stripping, and phonetic skeleton matching for evasion-resistant mention detection
+- **ADR-010**: Embedding drift analysis -- ConTEXT-inspired sliding-window tracking of centroid migration, dispersion, and evasion rates
+- **ADR-011**: GPU acceleration -- fp16 embeddings on CUDA, automatic batch sizing based on available VRAM
 
 ## Known limitations
 

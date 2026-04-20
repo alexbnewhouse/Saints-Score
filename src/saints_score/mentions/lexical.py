@@ -12,6 +12,11 @@ import polars as pl
 from rapidfuzz import fuzz
 
 from saints_score.logging import logger
+from saints_score.mentions.adversarial import (
+    consonant_skeleton,
+    generate_adversarial_variants,
+    normalize_adversarial,
+)
 
 if TYPE_CHECKING:
     from saints_score.config import Settings
@@ -42,14 +47,19 @@ def lexical_candidate_retrieval(
         aid = row["attacker_id"]
         alias_map.setdefault(aid, []).append(row["alias"])
 
-    # Build regex pattern for exact matching (all aliases)
+    # Build regex pattern for exact matching (all aliases + adversarial variants)
     all_aliases = []
     alias_to_attacker: dict[str, str] = {}
+    adversarial_variants: dict[str, str] = {}  # variant → attacker_id
     for aid, alias_list in alias_map.items():
         for alias in alias_list:
             if len(alias) >= cfg.min_alias_token_len:
                 all_aliases.append(re.escape(alias.lower()))
                 alias_to_attacker[alias.lower()] = aid
+                # Generate adversarial variants
+                for variant in generate_adversarial_variants(alias):
+                    if len(variant) >= cfg.min_alias_token_len and variant not in alias_to_attacker:
+                        adversarial_variants[variant] = aid
 
     if not all_aliases:
         logger.warning(
@@ -99,7 +109,44 @@ def lexical_candidate_retrieval(
                     }
                 )
 
-    # Phase 2: Fuzzy matching on posts NOT already matched
+    # Phase 2: Adversarial-normalised matching
+    # Apply adversarial normalisation to post text and check against variants
+    if adversarial_variants:
+        logger.info("Adversarial matching: {} variants", len(adversarial_variants))
+        adv_matched_ids = {r["post_id"] for r in results}
+        adv_unmatched = posts_df.filter(~pl.col("post_id").is_in(list(adv_matched_ids)))
+        adv_sample_size = min(adv_unmatched.height, 500_000)
+        if adv_unmatched.height > adv_sample_size:
+            adv_unmatched = adv_unmatched.sample(n=adv_sample_size, seed=cfg.seed)
+            logger.info("Adversarial pass: sampled {} of {} unmatched posts", adv_sample_size, posts_df.height)
+        for row in adv_unmatched.iter_rows(named=True):
+            normed = normalize_adversarial(row["body_clean"])
+            for variant, aid in adversarial_variants.items():
+                if variant in normed:
+                    results.append({
+                        "post_id": row["post_id"],
+                        "attacker_id": aid,
+                        "alias_matched": variant,
+                        "match_type": "adversarial_norm",
+                        "score": 0.9,
+                    })
+            # Consonant skeleton matching
+            for token in normed.split():
+                if len(token) < cfg.min_alias_token_len:
+                    continue
+                skel = consonant_skeleton(token)
+                for alias_lower, aid in alias_to_attacker.items():
+                    alias_skel = consonant_skeleton(alias_lower)
+                    if len(alias_skel) >= 3 and skel == alias_skel and token != alias_lower:
+                        results.append({
+                            "post_id": row["post_id"],
+                            "attacker_id": aid,
+                            "alias_matched": token,
+                            "match_type": "phonetic_skeleton",
+                            "score": 0.8,
+                        })
+
+    # Phase 3: Fuzzy matching on posts NOT already matched
     matched_ids = {r["post_id"] for r in results}
     # Sample unmatched posts for fuzzy pass (too expensive on full corpus)
     unmatched = posts_df.filter(~pl.col("post_id").is_in(list(matched_ids)))

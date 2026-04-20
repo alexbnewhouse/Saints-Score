@@ -28,6 +28,8 @@ dependencies = [
     "numpy>=1.26",
     # Mention detection
     "rapidfuzz>=3.8",
+    # Clustering
+    "scikit-learn>=1.4",
     # Viz
     "matplotlib>=3.8",
     # Utilities
@@ -52,6 +54,9 @@ viz = [
 gpu = [
     "vllm>=0.4",
 ]
+
+[project.scripts]
+saints-score = "saints_score.cli:main"
 
 [build-system]
 requires = ["hatchling"]

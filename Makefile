@@ -47,28 +47,34 @@ test-integration: ## Run integration tests only
 # ── Pipeline phases ──
 
 ingest: ## Phase 1: Ingest and normalize /pol/
-	$(UV) run python scripts/01_ingest_pol.py --config config.toml
+	$(UV) run saints-score ingest --config config.toml
 
 cases: ## Validate and produce cases.parquet
-	$(UV) run python scripts/01_ingest_pol.py --config config.toml --cases-only
+	$(UV) run saints-score ingest --config config.toml --cases-only
 
 mentions: ## Phase 2: Detect attacker mentions
-	$(UV) run python scripts/02_detect_mentions.py --config config.toml
+	$(UV) run saints-score mentions --config config.toml
 
 affect: ## Phase 3: Score affect (sentiment + emotion)
-	$(UV) run python scripts/03_score_affect.py --config config.toml
+	$(UV) run saints-score affect --config config.toml
 
 temporal: ## Phase 4: Compute temporal metrics
-	$(UV) run python scripts/04_compute_temporal.py --config config.toml
+	$(UV) run saints-score temporal --config config.toml
 
 semantic: ## Phase 5: Compute semantic convergence
-	$(UV) run python scripts/05_compute_semantic.py --config config.toml
+	$(UV) run saints-score semantic --config config.toml
 
 score: ## Phase 6: Assemble composite Saints Score
-	$(UV) run python scripts/06_assemble_saints_score.py --config config.toml
+	$(UV) run saints-score score --config config.toml
 
 regression: ## Phase 7: Fit attack-characteristic regression
-	$(UV) run python scripts/07_fit_attack_regression.py --config config.toml
+	$(UV) run saints-score regression --config config.toml
+
+drift: ## Phase 8: Embedding-space drift analysis
+	$(UV) run saints-score drift --config config.toml
+
+run-all: ## Run full pipeline end-to-end
+	$(UV) run saints-score run-all --config config.toml
 
 # ── Housekeeping ──
 

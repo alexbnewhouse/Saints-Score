@@ -42,3 +42,19 @@
 | Immediate | t | t + 7d | First week post-attack |
 | Near-term | t + 8d | t + 90d | Weeks 2–13 |
 | Long-term | t + 91d | t + 730d | Months 4–24 |
+
+### Embedding Drift Metrics
+
+Output from `saints-score drift`. Per-attacker, per-window metrics tracking
+how the embedding-space representation of attacker mentions evolves over time.
+
+| Variable | Type | Description |
+|---|---|---|
+| `window_start` | date | Start of the sliding window |
+| `window_end` | date | End of the sliding window |
+| `centroid_drift` | float | Cosine distance between this window's centroid and the first window's centroid |
+| `mean_dispersion` | float | Mean cosine distance from posts to the window centroid |
+| `std_dispersion` | float | Standard deviation of cosine distances within the window |
+| `evasion_rate` | float | Proportion of mentions in the window detected via adversarial normalisation |
+| `cumulative_drift` | float | Running sum of centroid drift across all prior windows |
+| `n_posts` | int | Number of mention posts in the window |

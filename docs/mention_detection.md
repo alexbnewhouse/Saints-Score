@@ -29,6 +29,25 @@ For each seed alias:
 
 This stage deliberately over-retrieves; precision is handled downstream.
 
+### Stage 2.5: Adversarial Normalisation
+
+After exact/fuzzy matching and before semantic retrieval, posts are passed
+through an adversarial normalisation pipeline (`mentions/adversarial.py`):
+
+1. **NFKC normalisation** — Unicode compatibility decomposition
+2. **Homoglyph replacement** — Cyrillic/Greek look-alikes mapped to Latin equivalents (e.g., `В` → `B`, `ε` → `e`)
+3. **Zalgo stripping** — Remove runs of 2+ combining diacritical marks
+4. **Leetspeak decoding** — Common substitutions reversed (e.g., `4` → `a`, `1` → `i`, `$` → `s`)
+5. **Repeated character collapse** — Reduce runs of 3+ identical characters to 2 (e.g., `Taaaarrant` → `Taarrant`)
+6. **Lowercase normalisation**
+
+After normalisation, two matching passes are applied:
+- **Normalised exact match** (score 0.9, type `adversarial_norm`) — Normalised post text is checked against adversarial variants of seed aliases
+- **Consonant skeleton match** (score 0.8, type `phonetic_skeleton`) — Vowels are stripped and consecutive duplicate consonants are collapsed (e.g., `tarrant` → `trnt`), then matched against skeleton variants of aliases
+
+This stage catches evasive spellings like `T4rr4nt`, `Βrеntоn` (mixed scripts),
+and Z̷̧a̵l̸g̶o̵-̸o̷b̵f̶u̵s̶c̴a̴t̴e̵d̸ text that would defeat exact and fuzzy matching.
+
 ### Stage 3: Semantic Candidate Retrieval
 
 For each attacker, construct natural-language probes and embed with the

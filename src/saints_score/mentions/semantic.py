@@ -22,14 +22,26 @@ _model_cache: dict[str, SentenceTransformer] = {}
 
 
 def _get_embedding_model(cfg: Settings) -> SentenceTransformer:
-    """Load (or return cached) SentenceTransformer model."""
+    """Load (or return cached) SentenceTransformer model.
+
+    When CUDA is available, the model is loaded in float16 for ~2× throughput.
+    """
+    import torch
     from sentence_transformers import SentenceTransformer
 
     key = f"{cfg.embedding_model}:{cfg.embedding_revision}"
     if key not in _model_cache:
+        kwargs: dict[str, object] = {}
+        if torch.cuda.is_available():
+            kwargs["device"] = "cuda"
+            kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+            logger.info("Loading embedding model on CUDA with float16")
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            kwargs["device"] = "mps"
         _model_cache[key] = SentenceTransformer(
             cfg.embedding_model,
             revision=cfg.embedding_revision or None,
+            **kwargs,
         )
     return _model_cache[key]
 
@@ -69,10 +81,23 @@ def embed_texts(
 ) -> np.ndarray:
     """Embed texts using the configured sentence-transformer model.
 
+    When running on GPU, the batch size is automatically scaled up
+    to utilise available VRAM (unless explicitly overridden).
+
     Returns an (N, D) float32 array.
     """
+    import torch
+
     model = _get_embedding_model(cfg)
     bs = batch_size or cfg.embedding_batch_size
+    # Auto-scale batch size on GPU (larger batches → better GPU utilisation)
+    if batch_size is None and torch.cuda.is_available():
+        dev = torch.cuda.current_device()
+        mem_gb = torch.cuda.get_device_properties(dev).total_mem / (1024**3)
+        # ~1 GB per 512 batch for typical sentence-transformer models
+        bs = max(bs, min(int(mem_gb * 512), 4096))
+        logger.info("GPU detected ({:.1f} GB VRAM): auto batch_size={}", mem_gb, bs)
+
     logger.info("Embedding {} texts with {} (batch_size={})", len(texts), cfg.embedding_model, bs)
 
     embeddings = model.encode(

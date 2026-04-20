@@ -26,6 +26,18 @@ def _get_device() -> str:
     return "cpu"
 
 
+def _auto_batch_size(default: int, device: str) -> int:
+    """Scale batch size to available GPU memory when running on CUDA."""
+    if device != "cuda":
+        return default
+    dev = torch.cuda.current_device()
+    mem_gb = torch.cuda.get_device_properties(dev).total_mem / (1024**3)
+    # Classifier models are lighter than embedding models; scale more aggressively
+    scaled = max(default, min(int(mem_gb * 64), 1024))
+    logger.info("CUDA auto batch_size={} ({:.1f} GB VRAM)", scaled, mem_gb)
+    return scaled
+
+
 def score_sentiment(
     posts: pl.DataFrame,
     cfg: Settings,
@@ -39,6 +51,7 @@ def score_sentiment(
     and per-class probabilities.
     """
     device = _get_device()
+    batch_size = _auto_batch_size(batch_size, device)
     logger.info("Loading sentiment model: {} (device: {})", cfg.sentiment_model, device)
 
     pipe = pipeline(
@@ -87,6 +100,7 @@ def score_emotion(
     Returns DataFrame with ``post_id`` and one column per emotion label.
     """
     device = _get_device()
+    batch_size = _auto_batch_size(batch_size, device)
     logger.info("Loading emotion model: {} (device: {})", cfg.emotion_model, device)
 
     pipe = pipeline(
@@ -128,6 +142,7 @@ def score_toxicity(
     Returns DataFrame with ``post_id`` and toxicity scores.
     """
     device = _get_device()
+    batch_size = _auto_batch_size(batch_size, device)
     logger.info("Loading toxicity model: {} (device: {})", cfg.toxicity_model, device)
 
     pipe = pipeline(
