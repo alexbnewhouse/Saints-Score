@@ -58,9 +58,9 @@ class Settings(BaseSettings):
     embedding_revision: str = ""
     embedding_batch_size: int = 256
 
-    # ── LLM adjudicator (Ollama) ─────────────────────────────────────
-    ollama_base_url: str = "http://localhost:11434"
-    adjudicator_model: str = "gemma3:27b"
+    # ── Cross-encoder adjudicator ────────────────────────────────────
+    cross_encoder_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    cross_encoder_batch_size: int = 512
 
     # ── Sentiment / Emotion models ───────────────────────────────────
     sentiment_model: str = "cardiffnlp/twitter-xlm-roberta-base-sentiment"

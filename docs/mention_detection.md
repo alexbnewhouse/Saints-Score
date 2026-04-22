@@ -53,16 +53,33 @@ and Z̷̧a̵l̸g̶o̵-̸o̷b̵f̶u̵s̶c̴a̴t̴e̵d̸ text that would defeat ex
 For each attacker, construct natural-language probes and embed with the
 configured sentence-transformer model. Retrieve top-k nearest neighbours.
 
-### Stage 4: LLM Adjudication
+### Stage 4: Cross-Encoder Adjudication
 
-Each candidate is classified by a local LLM (via Ollama) using a structured
-few-shot prompt. The LLM returns:
-- `is_reference: bool`
-- `confidence: float`
-- `inferred_alias: str | null`
-- `is_oblique: bool`
+Candidates are classified by a GPU-native `sentence-transformers` CrossEncoder
+(`cross-encoder/ms-marco-MiniLM-L-6-v2`) using a **tiered confidence strategy**:
 
-All LLM outputs are cached (keyed on hash of prompt + model + version).
+**Tier 1 — exact_substring** (auto-accept)
+`exact_substring` matches are accepted unconditionally with `confidence = 1.0`.
+These are verified alias hits; cross-encoder scoring would only add noise.
+
+**Tier 2 — cross-encoder** (fuzzy, adversarial_norm, phonetic_skeleton, semantic)
+Each remaining candidate pair `("Does this post reference {name}?", post_text[:512])`
+is scored by the cross-encoder.  The raw logit is converted to a probability via
+sigmoid.  Candidates with `confidence ≥ mention_confidence_threshold` (default 0.5)
+are accepted.
+
+**Output fields**
+- `is_reference: bool` — accepted by tier 1 or cross-encoder threshold
+- `confidence: float` — 1.0 for exact hits; sigmoid(logit) otherwise
+- `inferred_alias: str | null` — lexical alias if present, else null
+- `is_oblique: bool` — True for `semantic` or `phonetic_skeleton` match types
+  (heuristic: these represent indirect/encoded references)
+
+Results are cached to `data/processed/adjudication_cache.parquet` keyed on
+`(post_id, attacker_id, model_name)`.  Re-runs skip already-scored pairs.
+
+**Performance**: ~50 000 pairs/second on an RTX 5080.  The ~186 K non-exact
+candidates are scored in under 4 seconds.
 
 ### Stage 5: Alias Bootstrapping
 
@@ -72,11 +89,13 @@ survivors to the alias inventory. Iterate stages 2–5 up to 3 rounds.
 
 ### Stage 6: Oblique Reference Handling
 
-Posts classified as `is_oblique=True` are maintained in a separate table
-with provenance. Examples:
-- "subscribe to PewDiePie" → Tarrant
-- "Knights Templar" → Breivik
-- "disco tier" → Crusius
+Posts with `is_oblique=True` are maintained in a separate table with
+provenance. The `is_oblique` flag is set heuristically for `semantic` and
+`phonetic_skeleton` match types, which surface indirect or encoded references.
+Examples:
+- "subscribe to PewDiePie" → Tarrant (semantic match)
+- "Knights Templar" → Breivik (semantic match)
+- "t4rr4nt" → Tarrant (phonetic_skeleton match)
 
 ## Validation
 

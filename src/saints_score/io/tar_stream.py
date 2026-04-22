@@ -59,11 +59,12 @@ def iter_tar_csv_chunks(
         text_stream = io.TextIOWrapper(fobj, encoding="utf-8", errors="replace")
         reader = csv.reader(text_stream)
 
-        # Skip header
-        header = next(reader)
-        logger.debug("CSV header ({} cols): {}", len(header), header[:5])
+        # 4plebs CSV has NO header row — first row is data.
+        # Peek at first row to log column count, then include it in data.
+        first_row = next(reader)
+        logger.debug("First row ({} cols): {}", len(first_row), first_row[:5])
 
-        chunk: list[list[str]] = []
+        chunk: list[list[str]] = [first_row]
         total_rows = 0
         for row in reader:
             chunk.append(row)
@@ -83,7 +84,7 @@ def iter_tar_csv_chunks(
 
 
 def get_tar_csv_header(tar_path: Path) -> list[str]:
-    """Read and return just the CSV header from a tar.gz archive."""
+    """Read and return the first row of the CSV (this CSV has no header row)."""
     with tarfile.open(tar_path, "r:gz") as tf:
         for member in tf:
             if member.name.endswith(".csv"):

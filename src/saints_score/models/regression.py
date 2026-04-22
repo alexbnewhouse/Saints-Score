@@ -68,9 +68,9 @@ def fit_regression(
 
     # Encode categoricals
     ideology_vals = (
-        data.get_column("saints_tradition").to_list()
+        [v if v is not None else "unknown" for v in data.get_column("saints_tradition").to_list()]
         if "saints_tradition" in data.columns
-        else ["none"] * N
+        else ["unknown"] * N
     )
     unique_ideologies = sorted(set(ideology_vals))
     ideology_idx = np.array(
@@ -79,7 +79,9 @@ def fit_regression(
     n_ideology = len(unique_ideologies)
 
     country_vals = (
-        data.get_column("country").to_list() if "country" in data.columns else ["unknown"] * N
+        [v if v is not None else "unknown" for v in data.get_column("country").to_list()]
+        if "country" in data.columns
+        else ["unknown"] * N
     )
     unique_countries = sorted(set(country_vals))
     country_idx = np.array(

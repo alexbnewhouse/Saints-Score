@@ -4,6 +4,7 @@ data/raw/**/*.tar.gz
 data/pol/*.tar.gz
 data/interim/
 data/processed/
+data/raw/ironmarch/
 
 # Outputs that should be regenerated
 out/runs/

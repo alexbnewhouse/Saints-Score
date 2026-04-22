@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING, Any
 
 import polars as pl
 
-from saints_score.io.parquet import write_partitioned
 from saints_score.io.tar_stream import iter_tar_csv_chunks
 from saints_score.logging import logger
 
@@ -24,46 +23,24 @@ if TYPE_CHECKING:
     from saints_score.config import Settings
 
 # ── 4plebs CSV column mapping ──────────────────────────────────────────────
-# Columns from the 4plebs /pol/ dump (positions based on sample_header.txt)
-FOURPLEBS_COLS = [
-    "num",  # 0  — post number (globally unique)
-    "subnum",  # 1
-    "thread_num",  # 2  — thread OP number
-    "op",  # 3  — 1 if OP, 0 otherwise
-    "timestamp",  # 4  — unix epoch
-    "fourchan_date",  # 5
-    "name",  # 6
-    "email",  # 7
-    "trip",  # 8
-    "title",  # 9
-    "comment",  # 10  — raw HTML post body
-    "poster_hash",  # 11 — ephemeral per-thread poster ID
-    "poster_country",  # 12
-    "media_filename",  # 13
-    "media_w",  # 14
-    "media_h",  # 15
-    "preview_orig",  # 16
-    "preview_w",  # 17
-    "preview_h",  # 18
-    "media_hash",  # 19
-    "media_orig",  # 20
-    "spoiler",  # 21
-    "deleted",  # 22
-    "capcode",  # 23
-    "exif",  # 24
-    "sticky",  # 25
-    "since4pass",  # 26
-]
+# Actual column order in the 4plebs /pol/ CSV dump (28 columns, NO header row):
+#  0 num              1 subnum           2 thread_num       3 op
+#  4 timestamp         5 fourchan_date    6 media_filename   7 media_w
+#  8 media_h           9 preview_orig    10 preview_w       11 preview_h
+# 12 media_size       13 media_hash      14 media_orig      15 spoiler
+# 16 deleted          17 capcode         18 email           19 name
+# 20 trip             21 title           22 comment         23 sticky
+# 24 locked           25 poster_hash     26 poster_country  27 exif
 
 # Indices we actually need
 IDX_NUM = 0
 IDX_THREAD = 2
 IDX_TIMESTAMP = 4
-IDX_TITLE = 9
-IDX_COMMENT = 10
-IDX_POSTER_HASH = 11
-IDX_COUNTRY = 12
-IDX_MEDIA_ORIG = 20
+IDX_TITLE = 21
+IDX_COMMENT = 22
+IDX_POSTER_HASH = 25
+IDX_COUNTRY = 26
+IDX_MEDIA_ORIG = 14
 
 # HTML tag stripper
 _TAG_RE = re.compile(r"<[^>]+>")
@@ -99,17 +76,28 @@ def _clean_body(text: str) -> str:
 
 def _extract_replies(text: str) -> list[int]:
     """Extract ``>>NNN`` reply references from raw post text."""
-    return [int(m) for m in _REPLY_RE.findall(text)]
+    out: list[int] = []
+    for m in _REPLY_RE.findall(text):
+        v = int(m)
+        if v <= _I64_MAX:
+            out.append(v)
+    return out
+
+
+_I64_MAX = (1 << 63) - 1
 
 
 def _safe_int(val: str) -> int | None:
-    """Parse a string to int, returning None for \\N or empty."""
+    """Parse a string to int, returning None for \\N, empty, or overflow."""
     if not val or val == "\\N" or val == "N":
         return None
     try:
-        return int(val)
+        v = int(val)
     except ValueError:
         return None
+    if v < 0 or v > _I64_MAX:
+        return None
+    return v
 
 
 def _safe_str(val: str) -> str | None:
@@ -126,7 +114,7 @@ def parse_chunk(rows: list[list[str]]) -> pl.DataFrame:
     """
     records: list[dict[str, Any]] = []
     for row in rows:
-        if len(row) < 13:
+        if len(row) < 23:
             continue
 
         post_id = _safe_int(row[IDX_NUM])
@@ -138,6 +126,10 @@ def parse_chunk(rows: list[list[str]]) -> pl.DataFrame:
             continue
 
         ts_utc = datetime.fromtimestamp(ts_raw, tz=UTC)
+
+        # Filter out corrupted timestamps outside the 4plebs /pol/ archive range
+        if ts_utc.year < 2013 or ts_utc.year > 2025:
+            continue
 
         raw_comment = _safe_str(row[IDX_COMMENT]) or ""
         body = _strip_html(raw_comment)
@@ -152,23 +144,34 @@ def parse_chunk(rows: list[list[str]]) -> pl.DataFrame:
                 "thread_id": _safe_int(row[IDX_THREAD]),
                 "board": "pol",
                 "timestamp_utc": ts_utc,
-                "poster_id": _safe_str(row[IDX_POSTER_HASH]),
+                "poster_id": _safe_str(row[IDX_POSTER_HASH]) if len(row) > IDX_POSTER_HASH else None,
                 "title": _safe_str(row[IDX_TITLE]),
                 "body": body,
                 "body_clean": body_clean,
                 "reply_to": replies,
                 "has_image": has_image,
-                "country_code": _safe_str(row[IDX_COUNTRY]),
+                "country_code": _safe_str(row[IDX_COUNTRY]) if len(row) > IDX_COUNTRY else None,
             }
         )
 
     if not records:
         return pl.DataFrame()
 
-    df = pl.DataFrame(records)
-    # Ensure datetime type
-    df = df.with_columns(
-        pl.col("timestamp_utc").cast(pl.Datetime("us", "UTC")),
+    df = pl.DataFrame(
+        records,
+        schema={
+            "post_id": pl.Int64,
+            "thread_id": pl.Int64,
+            "board": pl.Utf8,
+            "timestamp_utc": pl.Datetime("us", "UTC"),
+            "poster_id": pl.Utf8,
+            "title": pl.Utf8,
+            "body": pl.Utf8,
+            "body_clean": pl.Utf8,
+            "reply_to": pl.List(pl.Int64),
+            "has_image": pl.Boolean,
+            "country_code": pl.Utf8,
+        },
     )
     # Add year/month partition columns
     df = df.with_columns(
@@ -178,6 +181,25 @@ def parse_chunk(rows: list[list[str]]) -> pl.DataFrame:
     return df
 
 
+def _append_partitioned(
+    df: pl.DataFrame,
+    base_dir: Any,
+    partition_cols: list[str],
+    part_counters: dict[str, int],
+) -> None:
+    """Append a chunk to Hive-partitioned Parquet, creating new part files."""
+    groups = df.partition_by(partition_cols, as_dict=True)
+    for keys, part_df in groups.items():
+        if not isinstance(keys, tuple):
+            keys = (keys,)
+        parts = "/".join(f"{col}={val}" for col, val in zip(partition_cols, keys, strict=True))
+        idx = part_counters.get(parts, 0)
+        out_path = base_dir / parts / f"part-{idx}.parquet"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        part_df.drop(partition_cols).write_parquet(out_path, compression="zstd")
+        part_counters[parts] = idx + 1
+
+
 def ingest_pol(
     cfg: Settings,
     *,
@@ -185,6 +207,9 @@ def ingest_pol(
     dry_run: bool = False,
 ) -> dict[str, Any]:
     """Phase 1 main: stream-ingest /pol/ tar.gz → partitioned Parquet.
+
+    Writes partitioned Parquet **incrementally** (chunk-by-chunk) to keep peak
+    memory at ~1 chunk instead of the full corpus.
 
     Parameters
     ----------
@@ -206,59 +231,70 @@ def ingest_pol(
     logger.info("Starting /pol/ ingest: {} → {}", tar_path, out_dir)
 
     manifest: dict[str, Any] = {"months": {}, "total_rows": 0, "file_hashes": {}}
-    all_dfs: list[pl.DataFrame] = []
+    # Accumulate lightweight per-month stats without keeping row data
+    month_post_count: dict[str, int] = {}
+    month_unique_threads: dict[str, set[int]] = {}
+    month_body_lens: dict[str, list[float]] = {}
+    part_counters: dict[str, int] = {}
     total_rows = 0
+
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     for chunk_rows in iter_tar_csv_chunks(tar_path, chunk_size=cfg.ingest_chunk_size):
         df = parse_chunk(chunk_rows)
         if df.height == 0:
             continue
 
-        all_dfs.append(df)
         total_rows += df.height
+
+        # Write this chunk's partitions immediately (no accumulation)
+        if not dry_run:
+            _append_partitioned(df, out_dir, ["year", "month"], part_counters)
+
+        # Accumulate lightweight stats per (year, month)
+        stats = (
+            df.group_by(["year", "month"])
+            .agg(
+                pl.len().alias("post_count"),
+                pl.col("thread_id").alias("_threads"),
+                pl.col("body").str.len_bytes().mean().alias("mean_len"),
+            )
+        )
+        for row in stats.iter_rows(named=True):
+            key = f"{row['year']:04d}-{row['month']:02d}"
+            month_post_count[key] = month_post_count.get(key, 0) + row["post_count"]
+            if key not in month_unique_threads:
+                month_unique_threads[key] = set()
+            month_unique_threads[key].update(t for t in row["_threads"] if t is not None)
+            # Running mean approximation: store weighted mean
+            if key not in month_body_lens:
+                month_body_lens[key] = [0.0, 0]  # type: ignore[assignment]
+            prev_sum, prev_n = month_body_lens[key]  # type: ignore[misc]
+            cur_mean = row["mean_len"] or 0.0
+            month_body_lens[key] = [prev_sum + cur_mean * row["post_count"], prev_n + row["post_count"]]  # type: ignore[assignment]
 
         if limit and total_rows >= limit:
             logger.info("Hit row limit ({}), stopping", limit)
             break
 
-    if not all_dfs:
+    logger.info("Parsed {} total rows", total_rows)
+
+    if total_rows == 0:
         logger.warning("No data parsed from {}", tar_path)
         return manifest
 
-    full_df = pl.concat(all_dfs)
-    logger.info("Parsed {} total rows", full_df.height)
-
-    # Compute per-month stats for manifest
-    month_stats = (
-        full_df.group_by(["year", "month"])
-        .agg(
-            pl.len().alias("post_count"),
-            pl.col("thread_id").n_unique().alias("unique_threads"),
-            pl.col("body").str.len_bytes().mean().alias("mean_post_length_bytes"),
-            pl.col("body").str.len_bytes().median().alias("median_post_length_bytes"),
-        )
-        .sort(["year", "month"])
-    )
-
-    for row in month_stats.iter_rows(named=True):
-        key = f"{row['year']:04d}-{row['month']:02d}"
+    # Build manifest from accumulated stats
+    for key in sorted(month_post_count):
+        weighted_sum, n = month_body_lens.get(key, [0.0, 0])  # type: ignore[misc]
         manifest["months"][key] = {
-            "post_count": row["post_count"],
-            "unique_threads": row["unique_threads"],
-            "mean_post_length_bytes": round(row["mean_post_length_bytes"] or 0, 1),
-            "median_post_length_bytes": round(row["median_post_length_bytes"] or 0, 1),
+            "post_count": month_post_count[key],
+            "unique_threads": len(month_unique_threads.get(key, set())),
+            "mean_post_length_bytes": round(weighted_sum / max(n, 1), 1),
         }
 
-    manifest["total_rows"] = full_df.height
+    manifest["total_rows"] = total_rows
 
     if not dry_run:
-        # Write partitioned Parquet
-        write_partitioned(
-            full_df,
-            out_dir,
-            partition_cols=["year", "month"],
-        )
-
         # Hash output files
         for pq in sorted(out_dir.rglob("*.parquet")):
             rel = str(pq.relative_to(out_dir))

@@ -1,0 +1,397 @@
+\documentclass[12pt]{article}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage[
+backend=biber,
+style=authoryear-comp,
+]{biblatex}
+\addbibresource{references.bib}
+\usepackage[hidelinks]{hyperref}
+\title{``Canonization'' of Violent Attackers in the Extreme-Right Apocalyptic Movement}
+
+\author{Alex Newhouse}
+\date{April 2026 \\ \vspace{0.5em} \small Working Paper --- Prepared for MPSA 2026}
+\begin{document}
+\doublespacing
+
+\maketitle
+
+\begin{abstract}
+\noindent In recent years, extreme-right mass shooters have increasingly converged on a shared template of tactics, aesthetics, and rhetoric. Online communities associated with these attackers have developed a culture of ``Sainthood,'' in which certain perpetrators are elevated to near-mythic status through collective commemoration. In this paper, I investigate the dynamics of this canonization process, arguing that tactical and aesthetic contagion in decentralized violent movements is facilitated through cyclical processes of collective memorialization. I develop a novel measure of canonization---the ``Saints Score''---using natural language processing techniques applied to approximately 284 million posts from 4chan's /pol/ board. The Saints Score incorporates four dimensions of online community engagement with attackers: mention intensity, temporal longevity, affective orientation, and semantic coherence. I apply both a naive composite index and a Bayesian one-factor measurement model to quantify the strength and durability of attacker canonization across 160 mass-casualty events in OECD countries. I then regress the Saints Score against attack and perpetrator characteristics to investigate which factors predict canonization. Preliminary results reveal substantial variation in community engagement across attackers, with certain cases exhibiting persistent discussion patterns consistent with crystallized ``Saint'' narratives. However, the regression analysis yields wide credible intervals across all predictors, suggesting that the relationship between observable attack characteristics and long-term canonization is more complex than initial hypotheses anticipated. I discuss the methodological and theoretical implications of these preliminary findings for the study of decentralized political violence.
+\end{abstract}
+
+\newpage
+
+\section{Introduction}
+In 2019, the perpetrator of mass shootings at mosques in Christchurch, New Zealand, became the first extreme-right terrorist to livestream his attack online. In the years following, several other mass shooters constructed their own attacks to emulate the Christchurch shooter's, reproducing elements like attaching a GoPro to a Kevlar helmet, neo-Nazi and online meme symbols written in white on an assault rifle, and entire sections of manifestos copied without revision \parencite{phillips2024he}. Other neo-Nazi individuals have engaged in near-identical acts of ritual violence in furtherance of beliefs that this violence will bring about the end of the world \parencite{shah2023occult}. While ``copycat'' dynamics in violent acts have long been discussed in research communities and mainstream discourse \parencite{towers2015contagion}, the development of a shared symbolic, linguistic, and tactical ``language'' unifying otherwise disparate attacks cannot be fully explained by conventional ``copycat'' theories.
+
+Extreme-right apocalypticism is not the only highly decentralized political movement that has shown it can generate a cohesive set of aesthetics and tactics in its actions. For instance, the mass protest movement in Hong Kong in 2019 witnessed large-scale and leaderless diffusion of protest characteristics. In recent years, the Tesla Takedown movement in the United States has established a nationwide network of protest collectives connected by shared symbols and tactics. The strength of these threads of connection seems to be at odds with the strategic disorganization of the movements. What, then, drives the spread of the form and intended function of these acts? What creates the common characteristics that tie together these temporally and geographically distant activists?
+
+In this paper, I argue that symbolic and tactical contagion in decentralized social movements is facilitated through a cyclical process of collective memorialization and commemoration. Focusing on the case of extreme-right apocalypticism, I investigate how ``social movement online communities'' \parencite{caren2012social} have developed multimedia processes that iteratively build a legacy of movement heroes. Beginning with the observation that these communities have come to refer to their heroes as ``Saints,'' I develop a measure to describe the extent to which these communities ``canonize'' particular attackers. To create this measure, I apply a set of natural language processing techniques to a large-scale archive of posts from 4chan's /pol/ board. Encompassing approximately 284 million posts, this archive provides the opportunity to measure transformations in the cultural orientation of /pol/. While /pol/ is a general-purpose political discussion board with a heterogeneous user base, its well-documented extreme-right skew and its role in producing and circulating attacker-related content make it a useful case for studying canonization dynamics within the subset of users who function as a social movement online community oriented toward apocalypticism.
+
+The resulting measure---the Saints Score---combines four dimensions of community engagement: the \textit{intensity} of discussion in the immediate aftermath of an attack, the \textit{longevity} of an attacker's presence in community discourse, the \textit{affective orientation} of posts mentioning the attacker, and the \textit{semantic coherence} of the language used to discuss them. Treating these four indicators as reflections of a single latent construct, I estimate the Saints Score through both a naive composite index and a Bayesian one-factor measurement model with posterior credible intervals. I then use this measure as a dependent variable in a hierarchical Bayesian regression against a novel dataset of 160 mass-casualty events, investigating which characteristics of attacks and their perpetrators are associated with the canonization process.
+
+Preliminary results from this analysis reveal meaningful variation in how /pol/ engages with different attackers. The Christchurch attacker, for example, generated an initial spike of roughly 1,000 daily mentions that decayed following a power law ($\alpha = 0.52$), while the Charleston church shooter sustained a nearly flat mention rate ($\alpha = 0.01$) over a multi-year observation window. These patterns are consistent with the theoretical expectation that certain attackers become permanently embedded in community memory while others are rapidly forgotten. The regression analysis, however, produces wide credible intervals on all coefficients, with 89\% highest density intervals crossing zero for every predictor. This null result on the regression does not undermine the descriptive findings; rather, it suggests that the process of canonization is driven by factors more complex than what observable attack characteristics alone can capture, and that larger samples and additional covariates will be necessary to isolate the mechanisms.
+
+The paper proceeds as follows. I first review existing scholarship on decentralized political violence, social contagion, and collective memory in social movements. I then present a theoretical framework connecting these literatures to the specific case of extreme-right canonization. After describing my data sources and the construction of the Saints Score in detail, I present preliminary results and discuss their implications. I conclude with a discussion of limitations and directions for future work.
+
+\section{Background}
+\subsection{Decentralized Political and Extremist Violence}
+
+Despite conventional research holding that mass shootings and other instances of solo-actor violence operate essentially at random, completely outside of organizational structures, recent instances of white supremacist violence have challenged these prevailing assumptions. As \textcite{byman2017hunt} argues, ``In reality, few lone wolves truly act alone,'' and in fact they are frequently encouraged, either implicitly or explicitly, by more conventional extremist organizations for various purposes. For instance, the white supremacist mass shootings in Norway in 2011 were seemingly perpetrated by a ``lone wolf,'' but later analysis discovered that he likely had connections to European neo-fascist networks \parencite{berntzen2021monster}. The perpetrator of the mass shooting in Christchurch in 2019 had even more extensive involvement in global neo-fascist activism, including being an active user of 4chan and 8chan \parencite{wilson2025role}. In addition, extreme-right attackers have increasingly converged to a ``template'' for mass shootings, sharing characteristics such as manifestos laden with in-group language, weapons covered in symbols, and livestreamed video of the attacks \parencite{kupper2022contagion}. Finally, extremist networks and sympathetic audiences explicitly process these attacks as new entries in a global canon of white supremacist terrorism \parencite{macklin2022praise}. For example, decentralized extremist communities like 4chan's /pol/ board have even developed a shared language to refer to the attackers most associated with these networks, such as the use of the stylized term ``/ourguy/'' (including slashes and no space) \parencite{phillips2024he}.
+
+Ideology, not surprisingly, has organized the scholarship on solo-actor violence, with many of the advancements in our understanding focusing on the particularly apparent developments in the extreme right. In addition, there has been increasing influence from studies of the social processes of movements and collectives on the scholarship of terrorism and extremism. In contrast to, for example, structural and rationalist perspectives on terrorism and extremism, the social process research agenda aims to untangle the particular mechanisms that determine the characteristics of social movements. In this paper, I build on the concepts of social movement online communities, social contagion, and collective memory to argue that, in the case of neo-fascist attacks, violent tactics exhibit dynamics of social contagion that propagate through decentralized social networks. I build in particular on the qualitative work done by \textcite{kupper2022contagion}, who describe how many mass shooting ``artifacts'' (videos, manifestos, etc.) are drawn from a shared linguistic and symbolic foundation.
+
+\subsection{Emergence, Contagion, and Decentralization in Social Movements}
+
+Social movements are generally not created and structured via top-down decision-making and strict command-and-control institutions. Rather, movements are affected, to varying degrees, by bottom-up collaboration, the emergent creation of social identity, and the complex structures of activist and supporter networks. Despite an early focus on more conventional organizational strategies and the treatment of movements as unitary actors, foundational scholarship on contentious politics has long recognized that decentralization and bottom-up collaboration are important contributing factors to how movements operate and transform.
+
+Social movements are affected by \textit{emergence}, the process by which a network of entities produce outcomes that are unachievable by the constituent parts on their own. Network effects drive movement characteristics, including leadership, tactics, identity, and other elements. This process of self-organization is a result of ``the permanent movement and differentiation of actors and structures'' \parencite{fuchs2006self} and ``sustained interaction'' between the movement's participants and external entities \parencite{tilly1979social}. The growing recognition of the importance of informality, ``everyday talk'' \parencite{mansbridge1999everyday}, and ``weak'' network ties to social movements led scholars to introduce different concepts to capture more of this periphery. \textcite{buechler1990women} and other researchers of American liberation movements described ``social movement communities'' as movement-type entities that contradict the conventional expectations of organizational structure and strategy.
+
+Sociological and social psychological traditions have further refined and enhanced our understanding of collective, decentralized dynamics within movement contexts. Social identity theory, for instance, describes how groups of people interacting with one another develop a collective consciousness and shared identity, especially when paired with contention or conflict \parencite{tajfel1974social}. Movement scholars have subsequently explored how collective identity is both a driver and a product of movement activism \parencite{flesher2010collective, polletta2001collective, huddy2001social}. Identity, its development, and its \textit{deployment} may in fact be one of the key drivers of mobilization of movement supporters \parencite{touraine1985introduction, castells2011power}.
+
+Despite this extensive theoretical basis, the mechanics of collective identity creation, diffusion, and mobilization at scale have only recently been studied at scale. The development of new tools to measure social contagion, in particular, has contributed to a surge in efforts to untangle the complexities of movement transformation. Social contagion, a subject strongly linked to the idea of \textit{memetics}, describes the process by which objects like messages, ideas, narratives, and aesthetics spread through a social network without direct intention. In other words, it is meant to capture dynamics of spontaneous and stochastic diffusion throughout a web of relationships. Social contagion research has become widespread among complexity and information scientists, and scholars have explored its role in the adoption of a wide array of different behaviors. In social movement contexts, some studies have focused on the diffusion of aesthetics and tactics. \textcite{edwards2016infectious}, for instance, explores social networks in the British Suffrage Movement to show how tactics diffused through weak ties connecting influential members with rank-and-file participants. Building off of foundational movement literature on social movement organizations \parencite{zald1966social}, meanwhile, \textcite{wang2012social} demonstrates how the interaction of SMOs in protest collectives led to the spread of protest strategies and tactics.
+
+Scholars of social processes in movements have also explored \textit{collective memory}, which describes the shared pool of knowledge, interpretations, and narratives of the past that a collectivity creates. Collective memory can be intentionally cultivated or generated through spontaneous interactions, and it can subtly influence collective behavior over time or be wielded for acute and short-term purposes. In an effort to weave contentious politics scholarship together with discussions of identity, networked behavior, and contagion, \textcite{gongaware2010collective} explores through ethnographic study how collective memory operates as a process of commemoration and narrative-building in social movements. Movement participants may wield the past as a lens through which to understand present actions, justifying and categorizing the present as in the legacy of the movement's history.
+
+Some recent work on the extreme right has used concepts and frameworks from the social contagion and collective memory literatures to better explore the specifics of extreme-right mobilization. Much of this has been driven by the expansion of the Internet as a fundamental, and in some contexts dominant, medium for movement creation. \textcite{zeman2017role}, \textcite{marwick2022far}, and \textcite{vanderwee2023testing}, among others, have shown evidence that the Internet can be used as a tool by ideologically motivated extremists to drive extreme-right mass shootings and attacks. Seeking a way of discussing extremist entities with no clear hierarchy, fluid membership, and few permanent strategic goals, \textcite{caren2012social} propose the concept ``social movement online community'' (SMOC) to better orient research around white supremacist spaces like Stormfront. These authors suggest that a SMOC can operate similarly to offline communities of practice, wherein political mobilization is encouraged, directed, and accelerated, even without leadership or organizational structure. Similarly, \textcite{furstenberg2023decentralized} and \textcite{lee2022fascist} argue that extreme-right online communities facilitate a process of collective learning and identity creation despite their decentralization and fluidity, wherein the ``collective'' produces ``knowledge'' that can drive the mobilization of violence in the form of seemingly disparate attacks. In a related vein, \textcite{macklin2022praise} discusses the ``cumulative momentum'' of the ``Saints'' culture---the colloquial canonization and deification of extreme-right mass shooters---to better describe the dialogue between individual actors and their loosely connected and leaderless milieus.
+
+\section{Violent Mobilization as a System of Artifacts and Networks}
+
+Violent mobilization in movements can be caused by cues from leaders, ideologues, or other elites, but it can also arise via bottom-up pathways. In a theory-building study of \textit{spontaneity} in protest movements, for instance, \textcite{snow2014protest} argue that spontaneous mobilization to action occurs in non-hierarchical settings where movement participants have been ``primed'' and environmental factors allow it to happen. The authors further argue that spontaneous action ``is woven into the movement's operational fabric and thus is integral to its ongoing functioning,'' suggesting that this category of tactics can also be baked into the identity of the movement itself. \textcite{rucht2003violence}, meanwhile, describes how spontaneous violence manifested in early phases of civil conflict in Italy in the 1960s, and it eventually transitioned to more targeted, pre-meditated violence in later phases.
+
+The concept of \textit{stochastic terrorism} has been increasingly used to identify instances of seemingly disconnected political violence---especially mass casualty and targeted attacks---that appears to be inspired by narratives and influencers (rather than command-and-control structures). Although scholars disagree on exactly how to define this phenomenon, it generally refers to the possibility that mass media and communications networks can induce violent attacks in seemingly ``stochastic'' processes \parencite{braddock2020weaponized}. Studies of stochastic terrorism have generally focused on jihadist attacks and extreme-right violence, although these milieus by no means have a monopoly on this type of mobilization \parencite{amman2021stochastic, angove2024stochastic}.
+
+Scholarship on when, why, and in what way stochastic violence occurs is still in its nascent stages. I argue that the tactics and aesthetics of this type of violence often follow clear patterns determined by the creation of collective memory, as constituted by artifacts of commemoration and legacy-building, and the relational structures and processes of the communities engaged in this memory activism. In the context of extreme-right apocalyptic social movement communities, supporters have developed a set of artifacts that aim to create a growing pantheon of martyrs and heroes (``Saints,'' in movement terminology) who have taken action to further the cause \parencite{macklin2022praise, argentino2024nihilism}. These community-created artifacts are shared by movement members alongside \textit{attacker}-created objects, especially the manifestos and live-streams published by mass shooters in conjunction with their attacks, which are themselves remixed, cut up, and leveraged by the communities.
+
+The process I describe operates as a cycle with identifiable stages. An attacker carries out an act of violence and, in many cases, produces associated artifacts: a manifesto, a livestream, symbols inscribed on weapons or clothing. The social movement online community then receives these artifacts, debates their significance, and selectively commemorates the attacker through memes, collages, calendars, and ritualized discussion (see Figure~\ref{fig:saints} and Figure~\ref{fig:tarrant}). This commemoration crystallizes into a template, a set of aesthetic and tactical norms that define what a ``Saint'' looks like and how a ``successful'' attack should be conducted. Future attackers, socialized within or adjacent to these communities, adopt elements of this template in their own attacks, producing new artifacts that feed back into the commemoration cycle. The key theoretical claim is that this cyclical process, rather than top-down command or simple imitation, is the mechanism through which tactical and aesthetic contagion propagates across otherwise disconnected acts of violence.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/saints.png}
+    \caption{A propaganda image from the extreme-right online milieu listing attackers canonized as ``Saints,'' illustrating the visual and symbolic infrastructure of the commemoration process.}
+    \label{fig:saints}
+\end{figure}
+
+Commemorative processes around movement activists are not universal, though, and social movement communities must pick and choose which events and activists to organize around. In the case of extreme-right apocalyptic movements, commemoration in the form of ``Sainthood'' seems to be bestowed upon attackers who are most deemed to be ``/ourguys/'' (both the styling and word choice of this phrase are intentional) \parencite{phillips2024he}. This is not a monolithic designation, and extreme-right communities frequently disagree on the merits of particular attacks (and attackers) in contributing to the ``cause.'' What criteria to judge these attackers against is \textit{also} consistently debated, and movement members contest whether or not, for example, perpetrators of school shootings or ``incel'' attackers should be considered ``Saints'' \parencite{langman2020reading, witt2020if}. However contentious the ``canonization'' process is, these communities nonetheless continue to refer to a cadre of attackers as Saints, even years after the shootings occurred. As such, I expect an attacker's propensity to receive long-term Sainthood status to be driven by a combination of their aesthetic and tactical choices along with their attack's severity.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/tarrant.png}
+    \caption{Meme posted in Corona Chan News repurposing a quote from the Christchurch attacker's manifesto.}
+    \label{fig:tarrant}
+\end{figure}
+
+\textbf{Hypothesis 1}: Attackers who cause more casualties will be ``canonized'' at a higher rate than less severe attackers.
+
+\textbf{Hypothesis 2}: Attackers who more extensively connect their attack to movement goals (through content in manifestos, livestreams, etc.) will be ``canonized'' at a higher rate than less ideologically aligned attackers.
+
+\textbf{Hypothesis 3}: Attackers who adopt the aesthetic and tactical characteristics of existing ``Saints'' will be ``canonized'' at a higher rate than those who do not adopt these characteristics.
+
+\section{Data and Methods}
+
+To test these hypotheses, I construct a measure of ``Sainthood'' using natural language processing techniques applied to a large-scale archive of text posts from 4chan's /pol/ board. I then regress this measure against characteristics of mass-casualty attacks compiled in a novel dataset of 160 events. In this section, I describe the data sources, the construction of the Saints Score, and the regression specification.
+
+\subsection{Data}
+
+\subsubsection{The 4chan /pol/ Corpus}
+
+4chan's Politically Incorrect board (/pol/) is one of the most studied platforms in the online extremism literature \parencite{hine2017kek, papasavva2020raiders}. The board is anonymous, ephemeral (threads are automatically deleted after falling off the board), and has been repeatedly identified as a hub for white supremacist and accelerationist discourse. Its ephemeral design and anonymous posting structure make it a particularly useful case for studying emergent, bottom-up community processes: there is no persistent identity, no follower counts, and no algorithmic amplification, meaning that the staying power of any particular topic is driven almost entirely by organic user interest.
+
+I use a near-comprehensive archive of /pol/ posts maintained by the 4plebs archival service. This dataset encompasses approximately 284 million posts and spans the years 2013 through 2021. Each post record includes a globally unique identifier, thread identifier, UTC timestamp, the text body of the post (HTML-stripped), poster country flag, and metadata indicating whether an image was attached. During ingestion, I normalize post text using standard Unicode text normalization (NFKC), strip greentext formatting, and collapse whitespace. The processed corpus is stored as year-month partitioned Parquet files for efficient temporal querying.
+
+\subsubsection{Mass-Casualty Attack Dataset}
+
+To construct the independent variables for the regression analysis, I compile a novel dataset of 160 mass-casualty attacks attempted or committed in OECD countries during the period covered by the corpus. This dataset is inclusive of attacks across ideological categories, encompassing extreme-right, jihadist, incel, and ideologically ambiguous events. I intentionally cast this net widely to avoid selecting on the dependent variable: by including attacks that are unlikely to be ``canonized'' alongside those that are, I can observe variation in community response.
+
+I initially compiled this dataset using Claude Opus 4.7 (Anthropic) with its deep research capability enabled. This AI-assisted approach allowed systematic extraction of case metadata from publicly available sources, including court documents, coroner's reports, journalistic accounts, and existing academic databases such as the Global Terrorism Database \parencite{lafree2007introducing}, the Right-Wing Terrorism and Violence dataset \parencite{ravndal2016right}, and the Violence Project database \parencite{peterson2019violence}. The AI-compiled dataset will be validated and expanded by human coders in subsequent iterations of this project.
+
+For each case, the dataset records up to 77 variables spanning several categories. Attack-level variables include geographic location, date, venue type, target type, total fatalities (inclusive and exclusive of the perpetrator), total casualties, weapon type, and weapon modifications. Perpetrator-level variables capture age, sex, nationality, mental health indicators, and known online activity prior to the attack. Communication variables record whether the attacker published a manifesto (and if so, its title, length, and original posting venue), whether the attack was livestreamed (attempted, successful, or partial), and the platform used for the livestream. Ideological variables capture both claimed and assessed ideology, as well as indicators of connection to the ``Saints'' tradition specifically. Finally, network variables track whether the perpetrator cited prior attackers and whether they were subsequently cited by later attackers, enabling measurement of inter-attack referencing. A subset of these variables is shown in Table~\ref{tab:database}.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{p{4.5cm}p{5.5cm}p{5cm}}
+    \toprule
+        \textbf{Variable} & \textbf{Description} & \textbf{Example}\\
+    \midrule
+        Location & Geographic area of attack & Christchurch, New Zealand\\[0.3em]
+        Fatalities & Deaths directly attributable to attack & 51\\[0.3em]
+        Total Casualties & Injuries and deaths attributable & 140\\[0.3em]
+        Manifesto & Published manifesto (Y/N/Partial), title, venue & Yes; ``The Great Replacement''; 8chan \\[0.3em]
+        Livestream & Attempted and/or successful (Y/N/Partial) & Yes (successful); Facebook Live\\[0.3em]
+        Ideology (assessed) & Ideological classification & White supremacist; accelerationist\\[0.3em]
+        Prior attacker citations & Whether perpetrator cited earlier attackers & Yes; cited Breivik, Roof\\[0.3em]
+        Subsequent citations & Whether cited by later attackers & Yes; cited by Poway, El Paso, Halle\\
+    \bottomrule
+    \end{tabular}
+    \caption{Subset of variables included in the mass-casualty attack dataset.}
+    \label{tab:database}
+\end{table}
+
+Figure~\ref{fig:dataset-overview} summarizes the dataset along four dimensions. The temporal distribution (panel a) is concentrated in the 2010s and early 2020s, reflecting both the period of heightened extreme-right mobilization in OECD countries and the availability of detailed public records for recent events. The geographic distribution (panel b) is dominated by the United States, with a substantial European tail (Germany, the United Kingdom, France) and smaller contributions from Japan, Russia, Australia, and Canada. Panel (c) shows that fatality counts are right-skewed: the median attack produces four fatalities, but a small number of high-casualty events (e.g., Breivik, Pulse, Christchurch, Las Vegas) sit in the long tail. Panel (d) shows the distribution of confirmed /pol/ mentions per attacker from the detection pipeline: of the 157 attackers for whom a mention search was feasible, 134 generate at least one confirmed mention and the median attacker accumulates roughly 500 mentions, but the distribution spans nearly four orders of magnitude. This heterogeneity in community attention is precisely the variation the Saints Score is designed to quantify.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/dataset_overview.png}
+    \caption{Descriptive overview of the mass-casualty attack dataset and the /pol/ mention corpus. (a) Attacks per year. (b) Top 12 countries by attack count. (c) Fatality distribution (log scale). (d) Confirmed /pol/ mentions per attacker (log scale).}
+    \label{fig:dataset-overview}
+\end{figure}
+
+\subsection{The Saints Score: Measuring Canonization}
+
+The Saints Score is designed to capture the strength and durability of an attacker's presence in the collective memory of /pol/. The core intuition is straightforward: if an attacker is discussed frequently, for a long time, in positive terms, and with consistent language, that attacker has been more thoroughly ``canonized'' than one who is discussed briefly, negatively, or in scattered and incoherent ways. The challenge is operationalizing these intuitions at scale across 284 million posts and 160 cases.
+
+The Score integrates four dimensions of community engagement: mention \textit{intensity} (how much of the board's attention is consumed by a given attacker in the immediate aftermath), temporal \textit{longevity} (how long the attacker remains in community discourse), affective \textit{orientation} (whether the emotional tenor of discussion is positive or negative), and semantic \textit{coherence} (whether the language used to discuss the attacker converges on a stable set of phrases and framings). I first describe the mention detection pipeline, which identifies posts referencing specific attackers, and then describe how each dimension is measured and combined into the final score.
+
+\subsubsection{Mention Detection}
+
+Detecting references to specific attackers on /pol/ is considerably more difficult than it would be in conventional text corpora like news articles or parliamentary transcripts. Users on /pol/ frequently employ adversarial spelling variations (e.g., ``T4rr4nt'' for ``Tarrant''), coded references, leetspeak substitutions (replacing letters with numbers or symbols), and homoglyph characters (visually similar letters from non-Latin alphabets, such as using a Cyrillic ``B'' in place of a Latin one) to evade automated moderation. Standard dictionary-based or named entity recognition approaches would miss a substantial share of attacker references in this environment. To address this, I implement a multi-stage mention detection pipeline with four sequential components, each designed to capture a different type of reference.
+
+\textit{Stage 1: Lexical retrieval.} I first compile a seed alias inventory for each attacker, drawing from canonical names, known online handles, last-name-only variants, and aliases documented in case materials. I then search the full corpus for exact case-insensitive substring matches against these aliases. For shorter aliases (three tokens or fewer), I supplement exact matching with fuzzy token-level matching using the Levenshtein ratio---a measure of string similarity based on the number of single-character edits needed to transform one string into another---at a threshold of 85\%.
+
+\textit{Stage 2: Adversarial normalization.} To capture references that use deliberate misspellings or character substitutions, I apply a normalization pipeline to post text before matching. This pipeline reverses common leetspeak substitutions (e.g., ``0'' $\rightarrow$ ``o,'' ``3'' $\rightarrow$ ``e,'' ``\$'' $\rightarrow$ ``s''), maps Cyrillic and Greek homoglyph characters to their Latin equivalents, strips Zalgo-style combining diacriticals, and collapses runs of repeated characters. After normalization, posts are re-matched against the alias inventory. I also construct consonant skeleton representations of each alias (removing vowels and duplicate consonants) and match these against tokenized post text. These phonetic skeleton matches catch creative misspellings that defeat character-level normalization.
+
+\textit{Stage 3: Semantic retrieval.} The first two stages rely on matching specific strings of characters. But /pol/ users also discuss attackers obliquely, referring to ``the mosque shooter'' or ``what happened in NZ'' without ever naming the attacker. To capture these contextual references, I use a technique from computational linguistics called \textit{sentence embedding} \parencite{reimers2019sentencebert}. A sentence embedding model (here, nomic-embed-text-v1.5) converts each piece of text into a high-dimensional numerical vector---a list of 768 numbers---such that texts with similar meanings are placed closer together in this vector space, regardless of whether they share any specific words. I embed a sample of posts from threads already flagged by lexical matching, then construct probe queries for each attacker (e.g., ``a post referring to the 2019 New Zealand mass shooting by Brenton Tarrant'') and retrieve the 500 posts whose vectors are closest to the probe, as measured by cosine similarity (a standard measure of angular proximity between vectors). This stage identifies posts that discuss the attack or attacker without using any recognizable name or alias.
+
+\textit{Stage 4: Cross-encoder adjudication.} The preceding stages cast a wide net, inevitably producing false positives alongside genuine references. To filter these candidates, I apply a \textit{cross-encoder}, a type of neural language model specifically designed to evaluate whether two pieces of text are related. The cross-encoder (ms-marco-MiniLM-L-6-v2) takes as input a query (``Does this post reference or mention [attacker name]?'') paired with the candidate post text, and produces a confidence score between 0 and 1 reflecting the probability that the post genuinely references the attacker. Posts with confidence at or above 0.5 are accepted as confirmed mentions. Exact substring matches from Stage 1 are auto-accepted at confidence 1.0, since they are verified name hits and do not require further adjudication. The cross-encoder step is most valuable for adjudicating fuzzy, adversarial, and semantic candidates, where the initial signal is weaker and the risk of false positives is higher.
+
+This pipeline also supports alias bootstrapping: after an initial pass, tokens with high TF-IDF scores (term frequency-inverse document frequency, a standard measure of how distinctive a word is to a particular set of documents) co-occurring with confirmed mentions are extracted and promoted to the alias inventory for up to three additional rounds of detection and adjudication. The final output is a set of confirmed post-attacker mention pairs, each annotated with a confidence score and an indicator of whether the reference is oblique (i.e., detected through semantic or phonetic channels rather than direct name matching).
+
+\subsubsection{Affect Classification}
+
+For each post confirmed as referencing a specific attacker, I apply three pre-trained classifiers to characterize the emotional and evaluative content of the post. These classifiers are built on the \textit{transformer} architecture \parencite{vaswani2017attention}, a class of neural language models that has become the standard for text classification tasks in computational social science. Transformer models are pre-trained on large corpora to learn general representations of language, then fine-tuned on labeled examples of the specific classification task \parencite[e.g., sentiment analysis;][]{devlin2019bert}. The key advantage of transformer-based classifiers over earlier approaches like dictionary-based sentiment analysis is their ability to handle context, negation, sarcasm, and non-standard language, all of which are prevalent on /pol/.
+
+\textit{Sentiment.} I classify posts into positive, neutral, and negative sentiment categories using a multilingual XLM-RoBERTa model fine-tuned on social media data (cardiffnlp/twitter-xlm-roberta-base-sentiment). This model was selected for its demonstrated robustness to the informal, abbreviated, and multilingual text typical of social media platforms. It is important to note that ``positive'' and ``negative'' here refer to the emotional valence of the post text, not necessarily to approval or disapproval of the attacker. A post expressing excitement about an attack and a post expressing relief that casualties were limited could both be classified as ``positive'' in emotional terms. I address this limitation in the Discussion.
+
+\textit{Emotion.} I apply a RoBERTa model fine-tuned on the GoEmotions dataset \parencite{demszky2020goemotions}, which provides 27-category multilabel emotion classification covering states from admiration and amusement to disgust and grief. This fine-grained emotion taxonomy allows me to move beyond simple positive/negative valence and characterize the specific emotional posture of the community toward each attacker.
+
+\textit{Toxicity.} I also score posts for toxicity using a debiased RoBERTa model (unitary/unbiased-toxic-roberta), which serves as a control covariate to distinguish between positive engagement (celebration) and hostile engagement (condemnation).
+
+To manage computational cost, I sample up to 1,000 posts per attacker for affect classification, which provides a statistically sufficient basis for per-attacker aggregation across the 160-case dataset.
+
+For scoring purposes, I aggregate affect at the attacker level by computing the proportions of posts classified as positive and negative sentiment. I then compute the log-ratio of positive to negative sentiment, with a small smoothing constant ($\epsilon = 10^{-6}$) to prevent division by zero, and z-score this ratio across all attackers. This z-scored log-affect-ratio serves as one of the indicators in the Saints Score. Because mention counts vary widely across attackers (from single digits to several thousand), the 1,000-post cap means that low-mention cases contribute their entire population while high-mention cases are sampled. This non-uniform sampling rate could introduce noise in the affect ratios, though the large per-attacker samples should mitigate severe bias.
+
+\subsubsection{Temporal Dynamics: Intensity and Longevity}
+
+I measure two temporal properties of community engagement with each attacker: the intensity of immediate post-attack discussion and the longevity of sustained engagement over time.
+
+\textit{Intensity ($I_a$).} Intensity captures the share of board activity devoted to an attacker in the immediate aftermath of the attack. Formally, for attacker $a$ with attack date $t_0$:
+
+\begin{equation}
+I_a = \frac{\sum_{t=t_0}^{t_0 + 7} m_a(t)}{\sum_{t=t_0}^{t_0 + 7} N(t)}
+\end{equation}
+
+\noindent where $m_a(t)$ is the count of posts mentioning attacker $a$ on day $t$ and $N(t)$ is the total number of posts on /pol/ on day $t$. The seven-day immediate window captures the initial surge of attention.
+
+\textit{Longevity ($L_a$).} To characterize the durability of an attacker's presence in community discourse, I fit a power-law decay model to daily mention counts in the two-year window following the attack:
+
+\begin{equation}
+m_a(\tau) = C_a \cdot \tau^{-\alpha_a}
+\end{equation}
+
+\noindent where $\tau$ is days since the attack, $C_a$ is a prefactor capturing the initial mention level, and $\alpha_a$ is the decay exponent. Higher $\alpha$ indicates faster decay; lower $\alpha$ indicates a ``stickier'' presence in community discourse. I define longevity as $L_a = 1 / \alpha_a$, so that higher values correspond to more durable canonization. Parameters are estimated via nonlinear least squares with bounds $\alpha \in [0.01, 10]$ and $C > 0$. For attackers whose attack date falls outside the corpus window (e.g., the 2011 Norway attacks precede the corpus start date) or who lack sufficient post-attack data within the corpus, the decay model cannot be fit, and longevity is recorded as missing. The lower bound on $\alpha$ ($0.01$) is binding for several cases, including Charleston and San Bernardino, where daily mention rates remain flat or increase over the observation window. In these cases, the estimated $\alpha = 0.01$ reflects the optimizer hitting its constraint rather than a freely estimated parameter, and the resulting longevity value ($L_a = 100$) should be interpreted as indicating the absence of decay rather than as a precise estimate of persistence. Because these boundary cases all receive the maximum longevity value, the min-max scaling used in the naive composite compresses the remaining cases into a narrow range, effectively creating a binary distinction between ``decaying'' and ``non-decaying'' attackers in the longevity dimension. The Bayesian measurement model partially mitigates this issue by estimating factor loadings from the data rather than relying on fixed scaling.
+
+The power-law specification is motivated by prior research on the decay of collective attention, which has found that public interest in events tends to follow heavy-tailed distributions rather than exponential decay \parencite{wu2007novelty, lorenzspreen2019accelerating}. Alternative functional forms, such as exponential or stretched-exponential models, could be explored in future work; the power law was selected for its parsimony and interpretability, not because it provides the best fit across all cases. The wide variation in $\alpha$ across cases is itself informative: the Christchurch attacker exhibits $\alpha = 0.52$ (moderate decay, with sustained mention rates above baseline even at two years), while the El Paso attacker shows $\alpha = 1.45$ (sharp decay, approaching zero mentions within months). The Charleston church shooter, strikingly, exhibits $\alpha = 0.01$, indicating a nearly flat mention rate that \textit{increases} over the observation window rather than decaying. This pattern is consistent with an actively maintained collective memory, wherein discussions of the attacker are sustained or renewed by subsequent events and ongoing community commemoration.
+
+\subsubsection{Semantic Convergence}
+
+The final dimension of the Saints Score captures the linguistic coherence of discussions about each attacker. The intuition behind this measure is that a crystallized ``Saint'' narrative should produce relatively uniform language: if /pol/ users repeatedly invoke the same phrases, framings, and tropes when discussing an attacker, this suggests that the community has converged on a shared understanding of the attacker's significance. By contrast, if discussion is scattered across unrelated topics or marked by internal disagreement, the attacker has not achieved the kind of narrative consensus associated with canonization.
+
+To measure this convergence, I use the same sentence embedding approach described in the mention detection stage. For each attacker, I sample up to 500 confirmed mention posts and convert them into 768-dimensional vector representations using the nomic-embed-text-v1.5 model. I then compute the pairwise cosine similarity between every pair of embedded posts. The cosine similarity between two vectors ranges from $-1$ (opposite meaning) to $+1$ (identical meaning), with values around $0.3$--$0.5$ typical for posts on unrelated topics and values above $0.7$ indicating strong thematic overlap. I take the median pairwise similarity across all pairs as the convergence metric ($S_a$). Higher median similarity indicates more formulaic and ritualized language; lower similarity indicates diverse or contested discussion.
+
+\subsubsection{Score Assembly}
+
+I combine the four indicators into a Saints Score using two approaches.
+
+\textit{Naive composite.} The naive Saints Score is a simple scaled composite:
+
+\begin{equation}
+\text{Saints}_a^{\text{naive}} = z\!\left(\log \frac{E_a^{+} + \epsilon}{E_a^{-} + \epsilon}\right) \times \left(I_a^{*} + L_a^{*} + S_a^{*}\right)
+\end{equation}
+
+\noindent where $E_a^{+}$ and $E_a^{-}$ are the positive and negative sentiment proportions, $z(\cdot)$ denotes z-scoring across attackers, and superscript $^{*}$ denotes min-max scaling to $[0, 1]$. This composite has the advantage of transparency but lacks uncertainty quantification and mixes heterogeneous scales in an ad hoc manner.
+
+\textit{Bayesian one-factor model.} To address these limitations, I also estimate the Saints Score as a latent variable using a confirmatory one-factor measurement model, an approach with roots in psychometric theory and widely used in political science for index construction \parencite{treier2008democracy, jackman2009bayesian}. The model is implemented in PyMC3 \parencite{salvatier2016pymc3}. The logic of this model is analogous to factor analysis: rather than imposing fixed weights on each indicator (as the naive composite does), the model estimates the weights from the data, identifying how strongly each indicator reflects the underlying latent construct. If all five indicators move together across cases, the model infers a well-identified latent factor; if they are loosely correlated, the model appropriately assigns wide uncertainty to the score estimates.
+
+Formally, the model treats five indicators---the four dimensions described above (affect ratio, intensity, longevity, and semantic similarity) plus log-mention-volume---as noisy reflections of a single latent factor:
+
+\begin{align}
+y_{aj} &= \lambda_j \cdot \eta_a + \varepsilon_{aj} \\
+\eta_a &\sim \text{Normal}(0, 1) \\
+\lambda_j &\sim \text{Normal}(0.5, 1) \\
+\sigma_j &\sim \text{HalfNormal}(1) \\
+\varepsilon_{aj} &\sim \text{Normal}(0, \sigma_j)
+\end{align}
+
+\noindent where $\eta_a$ is the latent Saints Score for attacker $a$, $\lambda_j$ are factor loadings (the estimated weight of each indicator), and $\sigma_j$ are indicator-specific residual standard deviations capturing measurement error. All indicators are standardized prior to estimation (centered at zero with unit variance) so that the loadings are comparable across indicators.
+
+I estimate this model using Markov chain Monte Carlo (MCMC) sampling \parencite{gelman2013bayesian}, a computational method for approximating posterior probability distributions when closed-form solutions are unavailable. MCMC works by drawing repeated samples from the joint posterior distribution of all model parameters, producing a set of plausible values for each parameter given the observed data and the specified prior beliefs. I draw 2,000 posterior samples after 1,000 ``tuning'' samples (which are discarded as warm-up). The result for each attacker is a distribution of plausible Saints Scores, from which I report the posterior mean and the 89\% highest density interval (HDI). The HDI is analogous to a confidence interval in frequentist statistics, representing the narrowest interval containing 89\% of the posterior probability mass. Wider HDIs indicate greater uncertainty about the true score.
+
+\subsection{Regression Specification}
+
+To test the hypotheses, I regress the Bayesian Saints Score against attack and perpetrator characteristics using a hierarchical Bayesian linear model:
+
+\begin{equation}
+\eta_a = \beta_0 + \beta_1 \log(\text{fatalities}_a + 1) + \beta_2 \cdot \text{manifesto}_a + \beta_3 \cdot \text{livestream}_a + \beta_4 \cdot \text{age}_a^{*} + \alpha_{\text{ideology}[a]} + \alpha_{\text{country}[a]} + \varepsilon_a
+\end{equation}
+
+\noindent where fatalities exclude the perpetrator. The terms $\alpha_{\text{ideology}[a]}$ and $\alpha_{\text{country}[a]}$ are random intercepts, which implement \textit{partial pooling} across ideology groups and countries. Partial pooling is a compromise between treating each ideology (or country) as entirely independent (which would overfit small groups) and ignoring group structure entirely (which would mask meaningful heterogeneity). The model estimates how much variation in Saints Scores exists between ideology groups and between countries, and it adjusts the group-level intercepts accordingly: groups with few observations are ``pulled'' toward the overall mean, while groups with more data are allowed to deviate from it.
+
+All priors are weakly informative: coefficient priors are $\beta_j \sim \text{Normal}(0, 1)$, expressing the expectation that effects are centered on zero with moderate uncertainty; random intercept standard deviations have priors $\sigma_k \sim \text{HalfNormal}(0.5)$, gently constraining the between-group variation; and the residual standard deviation prior is $\sigma \sim \text{HalfNormal}(1)$. Inference uses the same MCMC configuration as the measurement model (2,000 draws, 1,000 tuning). I report 89\% HDIs for all coefficients; a coefficient whose HDI excludes zero provides credible evidence of an association, while an HDI spanning zero indicates that the effect cannot be reliably distinguished from null.
+
+The log-fatality count tests Hypothesis 1 (severity). The manifesto and livestream indicators test Hypothesis 2 (movement connectivity). Hypothesis 3 (emulation of prior Saints) is not directly tested in the current regression specification. The inter-attack citation variables coded in the case dataset provide a foundation for this test, but constructing an appropriate network model requires careful treatment of temporal ordering and endogeneity that is beyond the scope of this preliminary analysis.
+
+\section{Preliminary Results}
+
+\subsection{Descriptive Findings}
+
+The mention detection pipeline identifies confirmed references to attackers across the /pol/ corpus, though the volume and character of these mentions vary enormously across cases. Of the 160 events in the dataset, 113 generate at least one confirmed mention in the corpus, while the remaining 47 produce no detectable references, either because the attack occurred outside the corpus window (post-2021) or because it generated no discernible discussion on /pol/. Among cases with mentions, mention counts range from a single post to several thousand.
+
+The temporal dynamics of community engagement reveal distinct patterns across attacker types. Figure~\ref{fig:decay-curves} presents mention decay curves for four illustrative cases. The Christchurch attacker (Figure~\ref{fig:decay-chch}) shows an initial spike of approximately 1,000 daily mentions followed by a power-law decay with $\alpha = 0.52$, indicating moderately durable community attention. By one year after the attack, daily mentions stabilize at roughly 30--50 per day, well above the pre-attack baseline. This pattern is consistent with what the theoretical framework predicts for a successfully ``canonized'' attacker: an intense initial response followed by sustained, if diminished, integration into ongoing community discourse.
+
+The Charleston church shooter (Figure~\ref{fig:decay-charleston}) presents a strikingly different pattern. With $\alpha = 0.01$, the fitted decay curve is essentially flat, and raw daily mention counts actually \textit{increase} over the observation window, rising from roughly 200 per day in the months following the attack to 500--2,000 per day by the end of the observation period. This pattern suggests that the Charleston attacker became more central to community discourse over time, with discussion intensifying rather than fading. This is consistent with qualitative accounts of the attacker's growing symbolic importance in extreme-right communities \parencite{macklin2022praise, berntzen2021monster}.
+
+The El Paso attacker (Figure~\ref{fig:decay-elpaso}), by contrast, exhibits rapid decay ($\alpha = 1.45$). An initial spike of roughly 260 daily mentions collapses to near-zero within three months, with only sporadic recurrences. This pattern is consistent with an attacker who generated significant immediate attention but failed to achieve lasting ``Sainthood.'' The Norway attacker (Figure~\ref{fig:decay-breivik}), whose attack in 2011 predates the corpus start, shows no initial spike but maintains a baseline of roughly 10--50 daily mentions throughout the corpus period, with periodic spikes reaching 200--250. This sustained, anniversary-driven pattern is characteristic of a well-established ``Saint'' whose place in the canon was already crystallized by the time the corpus begins.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/decay_per_attacker/NZL-2019-CHRISTCHURCH.png}
+        \caption{Christchurch, NZ ($\alpha = 0.52$)}
+        \label{fig:decay-chch}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/decay_per_attacker/USA-2015-CHARLESTON.png}
+        \caption{Charleston, USA ($\alpha = 0.01$)}
+        \label{fig:decay-charleston}
+    \end{subfigure}
+    \\[1em]
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/decay_per_attacker/USA-2019-ELPASO.png}
+        \caption{El Paso, USA ($\alpha = 1.45$)}
+        \label{fig:decay-elpaso}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/decay_per_attacker/NOR-2011-BREIVIK.png}
+        \caption{Breivik, Norway (no decay fit; pre-corpus)}
+        \label{fig:decay-breivik}
+    \end{subfigure}
+    \caption{Mention decay curves for four representative attackers, showing daily mention counts (blue) and fitted power-law decay (red), where available. The four cases illustrate distinct canonization trajectories: moderate decay (Christchurch), persistent and growing engagement (Charleston), rapid decay (El Paso), and sustained baseline discussion of a long-established ``Saint'' (Breivik).}
+    \label{fig:decay-curves}
+\end{figure}
+
+The naive Saints Score, which integrates affect, intensity, longevity, and semantic similarity into a single composite, shows substantial variation across the dataset. Table~\ref{tab:scores} presents scores for selected cases. Several patterns stand out. First, some attacks not typically associated with the extreme-right ``Saints'' canon score highly on the naive measure, including the San Bernardino attack (a jihadist event that generated sustained, ideologically charged discussion on /pol/) and the Aurora theater shooting (a high-profile mass casualty event without clear ideological affiliation). This result highlights that the naive composite captures general community engagement rather than specifically positive canonization, and it underscores the importance of developing more targeted measures of affective endorsement in future work.
+
+Second, the well-known ``Saints'' of the extreme-right movement---Christchurch, Charleston, Pittsburgh, Poway, and El Paso---all score in the positive range but occupy a middle tier rather than dominating the distribution. This likely reflects the limitations of the affect classification, which may not adequately distinguish between celebration and other forms of intense engagement (such as political debate, condemnation, or ironic commentary) in the distinctive linguistic environment of /pol/.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \begin{tabular}{lrrrr}
+    \toprule
+    \textbf{Case} & \textbf{Mentions} & \textbf{Na\"ive Score} & \textbf{Bayes Mean} & \textbf{89\% HDI} \\
+    \midrule
+    NOR-2011-BREIVIK     & 1,218 & 0.209 & $-$0.018 & [$-$1.36, 1.41] \\
+    USA-2012-AURORA       & 1,090 & 0.674 &    0.001 & [$-$1.16, 1.19] \\
+    USA-2014-ISLAVISTA    & 1,224 & 0.357 &    0.006 & [$-$1.44, 1.44] \\
+    USA-2015-CHARLESTON   & 1,754 & 0.355 &    0.011 & [$-$2.36, 2.43] \\
+    USA-2015-SANBERN      & 1,031 & 0.870 & $-$0.001 & [$-$1.19, 1.19] \\
+    NZL-2019-CHRISTCHURCH & 2,048 & 0.464 & $-$0.002 & [$-$1.55, 1.59] \\
+    USA-2019-POWAY        & 1,208 & 0.258 & $-$0.018 & [$-$1.21, 1.23] \\
+    USA-2019-ELPASO       & 1,054 & 0.233 & $-$0.002 & [$-$0.68, 0.76] \\
+    DEU-2019-HALLE        &   923 & 0.237 &    0.010 & [$-$0.61, 0.67] \\
+    USA-2018-PITTSBURGH   & 1,046 & 0.302 & $-$0.004 & [$-$0.85, 0.86] \\
+    USA-2022-BUFFALO      &     9 & 0.616 &    0.024 & [$-$0.96, 0.93] \\
+    USA-2018-PARKLAND     & 1,201 & 0.401 & $-$0.013 & [$-$1.99, 1.98] \\
+    \bottomrule
+    \end{tabular}
+    \caption{Saints Scores for selected cases. The na\"ive score is the scaled composite; the Bayesian score is the posterior mean of the latent factor with 89\% highest density intervals. The Buffalo case illustrates data sparsity: with only 9 total mentions (the attack postdates the corpus), the na\"ive score is driven by noise, while the Bayesian score shrinks toward zero with a wide credible interval.}
+    \label{tab:scores}
+\end{table}
+
+The Bayesian Saints Score, by contrast, shrinks all estimates toward zero, reflecting the high level of uncertainty inherent in the indicators. As shown in Table~\ref{tab:scores} and Figure~\ref{fig:comparison}, the posterior means cluster tightly near zero (range: approximately $-0.05$ to $+0.05$), and the 89\% HDIs are wide, typically spanning $\pm 1.0$ to $\pm 2.5$. This is the statistically appropriate response to the level of noise in the data: the measurement model correctly identifies that the indicators, as currently specified, do not strongly constrain the latent factor. The Bayesian model is conservative by design; it does not manufacture certainty where the data provide none. This conservatism is an asset for downstream inference, where the regression model inherits the posterior uncertainty rather than operating on overconfident point estimates.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/saints_score_comparison.png}
+    \caption{Comparison of na\"ive and Bayesian Saints Scores. Each point is an attacker; vertical bars show 89\% HDI. The Bayesian model shrinks estimates toward zero, reflecting genuine uncertainty in the indicators. The dashed line marks 1:1 correspondence.}
+    \label{fig:comparison}
+\end{figure}
+
+Figure~\ref{fig:ranked} ranks the top 30 attackers by na\"ive Saints Score and overlays the Bayesian posterior mean with its 89\% HDI. The ordering is consistent with qualitative accounts of which cases generate the most sustained /pol/ engagement: the top of the distribution mixes canonical extreme-right ``Saints'' (Christchurch, Charleston, Pittsburgh, Poway, El Paso, Halle) with high-profile cases that generated ideologically charged but not necessarily celebratory discussion (San Bernardino, Aurora, Isla Vista, Parkland). The gap between the na\"ive bars and the near-zero Bayesian posteriors makes the shrinkage behavior of the measurement model visible on a per-case basis: even attackers with the highest na\"ive scores have Bayesian HDIs that comfortably cover zero, reinforcing that the current indicators do not on their own justify strong per-case claims about canonization.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/saints_score_ranked.png}
+    \caption{Top 30 attackers by na\"ive Saints Score (blue bars), with Bayesian posterior means and 89\% HDIs overlaid (red points and whiskers). The Bayesian estimates shrink sharply toward zero, and all HDIs include zero, illustrating the conservatism of the measurement model under the current indicator set.}
+    \label{fig:ranked}
+\end{figure}
+
+\subsection{Regression Results}
+
+The hierarchical Bayesian regression of the Saints Score on attack characteristics yields small coefficients with wide credible intervals across all predictors. Figure~\ref{fig:regression} presents the posterior coefficient estimates with 89\% HDIs. Log-fatalities shows a coefficient of $\hat{\beta}_1 = 0.001$ (89\% HDI: [$-$0.000, 0.003]); manifesto existence shows $\hat{\beta}_2 = 0.002$ (89\% HDI: [$-$0.004, 0.008]); successful livestream shows $\hat{\beta}_3 = 0.003$ (89\% HDI: [$-$0.008, 0.013]); and standardized perpetrator age shows $\hat{\beta}_4 = -0.001$ (89\% HDI: [$-$0.003, 0.001]). All four credible intervals include zero, and the coefficients are small in absolute terms relative to the scale of the dependent variable.
+
+These results do not provide strong support for any of the three hypotheses in their current form. The direction of the log-fatality coefficient is positive, consistent with Hypothesis 1, but the effect is too small and uncertain to draw substantive conclusions. The manifesto and livestream coefficients are also in the expected positive direction (consistent with Hypothesis 2), but neither is reliably distinguished from zero. These null results should be interpreted cautiously. The MCMC diagnostics are reassuring: all $\hat{R}$ values are 1.0, effective sample sizes exceed 2,000, and Monte Carlo standard errors are negligible. The model has converged; the uncertainty is in the data, not in the sampling.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/regression_forest.png}
+    \caption{Posterior coefficient estimates from the hierarchical Bayesian regression. Points show posterior means; horizontal bars show 89\% HDIs. The dashed vertical line marks zero. All credible intervals include zero, indicating that no predictor is reliably associated with the Bayesian Saints Score in the current specification.}
+    \label{fig:regression}
+\end{figure}
+
+\section{Discussion}
+
+The primary contribution of this paper is methodological: the Saints Score pipeline provides a systematic, reproducible approach to measuring community canonization of violent attackers using large-scale text data. While the regression analysis does not yet yield conclusive evidence for the hypothesized predictors of canonization, the descriptive findings are substantively informative and lay the groundwork for more targeted investigations.
+
+The most striking finding from the descriptive analysis is the sheer range of temporal dynamics in community engagement. The contrast between the Charleston attacker's increasing mention rate ($\alpha = 0.01$) and the El Paso attacker's rapid collapse ($\alpha = 1.45$) spans nearly three orders of magnitude in the decay exponent, representing qualitatively different canonization trajectories. The Charleston pattern, in which discussion intensifies rather than decays, is particularly notable. It is consistent with accounts of the Charleston attacker becoming a central symbolic figure in extreme-right communities in the years following the attack, and it aligns with the theoretical expectation that collective memory is actively constructed rather than passively maintained \parencite{gongaware2010collective, macklin2022praise}. The power-law decay framework provides a natural and interpretable way to characterize these trajectories, and the longevity metric ($L_a = 1/\alpha_a$) distills the shape of the decay curve into a single, comparable quantity.
+
+The null results in the regression analysis admit several interpretations, and I discuss three in order of their theoretical plausibility.
+
+The interpretation most consistent with the paper's theoretical framework is that canonization is genuinely driven by community-level processes that cannot be captured by attacker-level covariates alone. The theory developed in Section 3 emphasizes emergent identity, collective memory, and relational dynamics within the SMOC; the hypotheses, by contrast, test attacker-level characteristics (casualty count, manifesto existence, livestreaming). There is a level-of-analysis mismatch between theory and test. The process by which a community selects certain attackers for sustained commemoration may depend on contingent, relational, and contextual factors---the timing of the attack relative to other events, the specific framing adopted by influential community members, or the availability and virality of the attack's associated media artifacts---that are difficult to encode in a cross-sectional regression. The qualitative literature on ``Saints'' culture is consistent with this interpretation, emphasizing the role of community-level debate and contestation in determining who receives canonization \parencite{phillips2024he}. Viewed this way, the null result is not surprising; it is what the theory would predict when the hypotheses test the wrong unit of analysis.
+
+A second contributing factor is that the measurement model may require refinement. The wide HDIs on the Bayesian Saints Score suggest that the five indicators, as currently specified, do not strongly constrain the latent factor---the posterior means cluster near zero with credible intervals spanning $\pm 1$ to $\pm 2.5$, which approaches the behavior of the prior. This near-uninformativeness of the indicators means the latent variable has limited discriminating power across cases. The affect classifier, in particular, may not adequately distinguish between positive engagement (celebration, admiration) and other forms of intense engagement (debate, condemnation, ironic commentary) in the distinctive linguistic environment of /pol/. The high naive scores for cases like the San Bernardino attack (a jihadist event) highlight this concern: the community discussed the San Bernardino shooting extensively and with emotional intensity, but likely not in a manner consistent with canonization. Domain-specific fine-tuning of the affect classifier, or the development of a purpose-built classifier trained on labeled examples of ``Saint'' praise, would strengthen the measure. Additionally, the current regression uses posterior-mean point estimates from the measurement model as the dependent variable, discarding the substantial posterior uncertainty. A joint model that propagates measurement uncertainty into the regression would be more principled, though in this case the near-zero posterior means leave little signal for the regression to recover regardless.
+
+Third, the sample size and corpus coverage impose constraints on statistical power. Of the 160 cases in the dataset, 47 fall entirely outside the corpus window (post-2021 attacks with no /pol/ data), and many others have limited post-attack observation windows. The effective sample for the regression is substantially smaller than the nominal 160 cases, and the resulting uncertainty is reflected in the wide credible intervals. Extending the corpus to cover more recent years would substantially improve the statistical power of the analysis. The case dataset itself has not yet been validated by human coders, and measurement error in the independent variables (particularly the ideological and aesthetic coding) could attenuate coefficient estimates toward zero, compounding the power limitations.
+
+Despite these limitations, the descriptive findings offer preliminary support for the broader theoretical framework. The variation in decay patterns is consistent with the claim that /pol/ functions as a selective canonization engine, not merely a passive discussion board. Some attackers are rapidly forgotten while others achieve sustained, even growing, presence in community discourse. The mechanisms driving this selection are not yet identified by the regression, but the measurement infrastructure developed here provides a foundation for future investigation.
+
+From a policy and security perspective, the ability to measure canonization quantitatively has potential practical value, though any predictive application would require validation beyond the retrospective analysis presented here. Tracking the real-time trajectory of community engagement with a new attacker could, in principle, provide early warning of emerging ``Saints'' and the potential for copycat violence. The power-law decay model provides a natural baseline: if an attacker's mention rate deviates significantly from the expected decay trajectory (as in the Charleston case), this deviation could signal the crystallization of a new collective memory anchor with potential implications for downstream mobilization.
+
+\section{Limitations and Future Work}
+
+Several important limitations should be acknowledged. First, the /pol/ corpus ends in 2021, which means that 47 of the 160 cases in the dataset lack any post-attack observation data. Cases occurring after the corpus cutoff contribute to the regression as effectively zero-information observations, inflating uncertainty. The most consequential omission is the Buffalo attack (May 2022), which qualitative accounts identify as a pivotal event in the ``Saints'' canon \parencite{kupper2023going} but which appears in the corpus with only 9 stray pre-attack mentions. Extending the corpus with more recent archival data is the single most impactful improvement available for future iterations.
+
+Second, the case dataset was initially compiled using an AI research assistant (Claude Opus 4.7, Anthropic) and has not yet been validated by human coders. While the AI-assisted approach enabled comprehensive and systematic extraction of case metadata from public sources, it introduces the risk of subtle errors in coding, particularly for variables requiring interpretive judgment (e.g., assessed ideology, manifesto content analysis, aesthetic coding). A full human coding pass, including inter-coder reliability assessment, is planned for the next stage of the project.
+
+Third, the affect classification models were trained on general social media corpora and may not transfer well to /pol/'s adversarial and irony-laden register. The GoEmotions taxonomy \parencite{demszky2020goemotions}, while fine-grained, was developed using Reddit data and may not capture the specific emotional registers of 4chan discourse. Domain adaptation or purpose-built classifiers trained on labeled /pol/ data would improve the affect dimension of the Saints Score.
+
+Fourth, the current regression specification is parsimonious by design, including only four fixed-effect predictors. Important omitted variables include network-level measures (e.g., whether the attacker was cited by subsequent attackers), media coverage intensity, and fine-grained characteristics of attack aesthetics and manifesto content. The inter-attack citation variables in the case dataset provide a foundation for testing Hypothesis 3 more directly in future work, though constructing a proper network model requires careful treatment of temporal ordering and endogeneity.
+
+Fifth, the analysis is limited to 4chan's /pol/ board and cannot speak to canonization dynamics on other platforms, including Telegram (and the Terrorgram Collective specifically), Gab, or the broader universe of extreme-right forums. Cross-platform analysis would be valuable for assessing the generalizability of the Saints Score framework.
+
+Several directions for future work follow from these limitations. Extending the corpus to cover more recent years is the highest priority, as it would bring the Buffalo, Bratislava, and other pivotal post-2021 cases into the analysis. Human coding validation of the case dataset is underway. Domain-adapted affect classification, network regression incorporating the inter-attack citation variables already coded in the dataset, and cross-platform comparison with Telegram archival data are all natural extensions. In addition, the embedding drift analysis module of the pipeline, which tracks the evolution of semantic representations of attacker discourse over time, offers a promising avenue for investigating how ``Saint'' narratives crystallize and shift across temporal windows.
+
+\section{Conclusion}
+
+In this paper, I have presented a theoretical framework for understanding how decentralized violent movements can influence associated attacks to be highly similar in tactics and aesthetics, and I have developed a computational measure---the Saints Score---to quantify the process of attacker canonization in extreme-right online communities. The framework builds on contentious politics, collective identity, and collective memory literatures, arguing that attack contagion from violent social movements is a product of community-level commemoration processes that actively construct and maintain a canon of movement heroes.
+
+The research design centers on the case of extreme-right apocalypticism, a movement that has produced dozens of mass-casualty attacks over the last fifteen years. This movement has cultivated a transnational, decentralized, leaderless, and ephemeral structure that has received significant scholarly attention, but the driving forces of why apocalyptic attackers look so similar remain underexplored quantitatively. The Saints Score pipeline addresses this gap by providing a systematic and reproducible method for measuring the strength, durability, and character of community engagement with individual attackers, drawing on a multi-stage NLP pipeline applied to a large-scale archival corpus of /pol/ posts.
+
+The preliminary results confirm that /pol/ engages differentially with different attackers. The power-law decay model reveals canonization trajectories ranging from rapid forgetting ($\alpha > 1$) to actively maintained or growing collective memory ($\alpha \approx 0$). While the regression analysis does not yet identify which attack characteristics predict canonization, the descriptive infrastructure developed here---the mention detection pipeline, the temporal decay fitting, and the Bayesian measurement model---provides a foundation for future work that can draw on extended data, refined measures, and more comprehensive specifications.
+
+More broadly, this project represents a step toward a more quantitative, socially oriented approach to studying decentralized political violence and the interactions between online and offline activism. By measuring collective memory formation at scale, we can begin to identify the processes through which leaderless movements generate the cohesion and continuity that shape the form and character of subsequent violence. Understanding these processes is essential not only for academic analysis but for informing efforts to monitor and respond to the escalatory dynamics of stochastic terrorism.
+
+\printbibliography
+\end{document}

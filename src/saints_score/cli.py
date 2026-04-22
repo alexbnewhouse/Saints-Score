@@ -84,7 +84,16 @@ def ingest(config_path: str, dry_run: bool, limit: int | None, cases_only: bool)
     logger.info("=== Ingesting /pol/ corpus ===")
     from saints_score.ingest.pol import ingest_pol
 
-    if not cfg.pol_tar.exists():
+    # Cache check: skip ingest if partitioned parquet already exists
+    existing_parquets = list(cfg.pol_parquet.rglob("*.parquet")) if cfg.pol_parquet.exists() else []
+    if existing_parquets and not dry_run:
+        logger.info(
+            "Found {} existing partition files in {}. Skipping re-ingest (delete to force).",
+            len(existing_parquets), cfg.pol_parquet,
+        )
+        manifest = {"total_rows": "cached", "cached": True}
+        run.metrics = {**cases_report, "pol_manifest": manifest}
+    elif not cfg.pol_tar.exists():
         logger.error("/pol/ tar not found: {}. Skipping ingest.", cfg.pol_tar)
     else:
         if not dry_run:
@@ -153,6 +162,9 @@ def mentions(
     logger.info("Lexical candidates: {}", lex_candidates.height)
 
     # Stage 3: Semantic retrieval
+    # Full-corpus embedding is infeasible at 284M rows.  Instead we embed
+    # posts from threads that already have a lexical match (contextual
+    # neighbours) plus a controlled random sample, capped to avoid OOM.
     logger.info("=== Stage 3: Semantic candidate retrieval ===")
     from saints_score.mentions.semantic import (
         build_attacker_probes,
@@ -160,7 +172,32 @@ def mentions(
         semantic_candidate_retrieval,
     )
 
-    posts_for_embed = posts_lf.select(["post_id", "body_clean"]).collect()
+    MAX_EMBED_POSTS = 2_000_000  # upper bound for GPU/RAM budget
+
+    # Identify threads containing lexical matches
+    lex_post_ids = lex_candidates["post_id"].unique()
+    lex_thread_ids = (
+        posts_lf.filter(pl.col("post_id").is_in(lex_post_ids))
+        .select("thread_id")
+        .unique()
+        .collect()["thread_id"]
+    )
+    # Collect posts from those threads (contextual neighbours)
+    thread_posts = (
+        posts_lf.filter(pl.col("thread_id").is_in(lex_thread_ids))
+        .select(["post_id", "body_clean"])
+        .collect()
+    )
+    logger.info(
+        "Thread-neighbour posts for embedding: {} (from {} threads)",
+        thread_posts.height,
+        len(lex_thread_ids),
+    )
+    if thread_posts.height > MAX_EMBED_POSTS:
+        thread_posts = thread_posts.sample(n=MAX_EMBED_POSTS, seed=cfg.seed)
+        logger.info("Capped to {} posts for embedding", MAX_EMBED_POSTS)
+
+    posts_for_embed = thread_posts
     texts = posts_for_embed["body_clean"].to_list()
     post_ids = posts_for_embed["post_id"].to_list()
 
@@ -168,21 +205,43 @@ def mentions(
         post_embeddings = embed_texts(texts, cfg)
         probes = build_attacker_probes(cases)
         sem_candidates = semantic_candidate_retrieval(post_embeddings, post_ids, probes, cfg)
-        logger.info("Semantic candidates: {}", sem_candidates.height)
+        logger.info("Semantic candidates (raw): {}", sem_candidates.height)
 
-        # Merge lexical + semantic candidates
+        # Keep only the top-50 per attacker (by similarity) to cap noise.
+        # The cross-encoder handles the ~7 950 resulting pairs in seconds.
+        MAX_SEM_PER_ATTACKER = 50
+        sem_candidates = (
+            sem_candidates.sort("similarity", descending=True)
+            .group_by("attacker_id")
+            .head(MAX_SEM_PER_ATTACKER)
+        )
+        logger.info(
+            "Semantic candidates after top-{}/attacker: {}",
+            MAX_SEM_PER_ATTACKER,
+            sem_candidates.height,
+        )
+
+        # Preserve alias_matched (null for semantic) for downstream provenance
         all_candidates = pl.concat(
             [
-                lex_candidates.select(["post_id", "attacker_id", "match_type"]),
-                sem_candidates.select(["post_id", "attacker_id", "match_type"]),
+                lex_candidates.select(["post_id", "attacker_id", "match_type", "alias_matched"]),
+                sem_candidates.select(["post_id", "attacker_id", "match_type"]).with_columns(
+                    pl.lit(None, dtype=pl.Utf8).alias("alias_matched")
+                ),
             ]
         ).unique(subset=["post_id", "attacker_id"])
     else:
         all_candidates = lex_candidates
 
-    # Stage 4: LLM adjudication
-    logger.info("=== Stage 4: LLM adjudication ===")
-    posts_df = posts_lf.collect()
+    # Stage 4: Cross-encoder adjudication
+    logger.info("=== Stage 4: Cross-encoder adjudication ===")
+    # Release embedding model VRAM before loading the cross-encoder
+    from saints_score.mentions.semantic import release_embedding_resources
+    release_embedding_resources()
+
+    # Only collect posts that are actual candidates (avoid full-corpus collect)
+    candidate_pids = all_candidates["post_id"].unique()
+    posts_df = posts_lf.filter(pl.col("post_id").is_in(candidate_pids)).collect()
     from saints_score.mentions.adjudicate import adjudicate_candidates, filter_mentions
 
     adjudicated = adjudicate_candidates(
@@ -236,9 +295,30 @@ def affect(config_path: str, dry_run: bool, limit: int | None) -> None:
         sys.exit(1)
     mention_df = read_parquet(mentions_path)
 
+    # Sample at most MAX_AFFECT_PER_ATTACKER posts per attacker before the
+    # expensive cross-corpus collect. 18M posts × 3 models = days; 1000/attacker
+    # is statistically sufficient for affect-distribution estimation.
+    MAX_AFFECT_PER_ATTACKER = 1_000
+    rng = cfg.seed
+    sampled = (
+        mention_df
+        .with_columns(pl.int_range(pl.len(), dtype=pl.UInt32).shuffle(seed=rng).alias("_rng"))
+        .sort("_rng")
+        .group_by("attacker_id")
+        .head(MAX_AFFECT_PER_ATTACKER)
+        .drop("_rng")
+    )
+    logger.info(
+        "Affect: sampled {}/{} mentions ({} per attacker cap)",
+        sampled.height, mention_df.height, MAX_AFFECT_PER_ATTACKER,
+    )
+    mention_df = sampled
+
     posts_lf = scan_partitioned(cfg.pol_parquet)
     mention_pids = mention_df.select("post_id").unique()
+    logger.info("Collecting {} unique post texts from corpus", mention_pids.height)
     posts = posts_lf.filter(pl.col("post_id").is_in(mention_pids["post_id"])).collect()
+    logger.info("Collected {} posts", posts.height)
 
     if limit:
         posts = posts.head(limit)
@@ -250,7 +330,9 @@ def affect(config_path: str, dry_run: bool, limit: int | None) -> None:
 
     run.metrics = {"n_posts_scored": affect_df.height, "columns": affect_df.columns}
     if not dry_run:
-        run.hash_output(cfg.resolve(cfg.data_processed) / "affect_scores.parquet")
+        affect_path = cfg.resolve(cfg.data_processed) / "affect_scores.parquet"
+        # run_affect_pipeline already writes the file; hash it for provenance
+        run.hash_output(affect_path)
         summary_dir = run.save(cfg.runs)
         (summary_dir / "SUMMARY.md").write_text(
             f"# Phase 3 — Affect Scoring Summary\n\n"
@@ -275,10 +357,21 @@ def temporal(config_path: str, dry_run: bool, limit: int | None) -> None:
 
     mention_df = read_parquet(cfg.resolve(cfg.data_processed) / "mentions.parquet")
     cases = read_parquet(cfg.resolve(cfg.data_processed) / "cases.parquet")
-    posts = scan_partitioned(cfg.pol_parquet).collect()
 
     if limit:
         mention_df = mention_df.head(limit)
+
+    # Only select the two columns temporal metrics need (post_id + timestamp).
+    # Fetching all columns for 18M posts would require 60+ GB RAM.
+    mention_pids_t = mention_df["post_id"].unique()
+    logger.info("Collecting timestamps for {} unique posts", mention_pids_t.len())
+    posts = (
+        scan_partitioned(cfg.pol_parquet)
+        .filter(pl.col("post_id").is_in(mention_pids_t))
+        .select(["post_id", "timestamp_utc"])
+        .collect()
+    )
+    logger.info("Collected {} post timestamps", posts.height)
 
     from saints_score.temporal.metrics import compute_daily_counts, compute_temporal_metrics
 
@@ -328,10 +421,27 @@ def semantic(config_path: str, dry_run: bool, limit: int | None) -> None:
 
     mention_df = read_parquet(cfg.resolve(cfg.data_processed) / "mentions.parquet")
     cases = read_parquet(cfg.resolve(cfg.data_processed) / "cases.parquet")
-    posts = scan_partitioned(cfg.pol_parquet).collect()
 
     if limit:
         mention_df = mention_df.head(limit)
+
+    # Cap per-attacker before expensive collection (embedding needs text; 500/attacker
+    # gives adequate per-attacker sample for convergence estimation).
+    MAX_SEM_PER_ATTACKER = 500
+    mention_df = (
+        mention_df
+        .with_columns(pl.int_range(pl.len(), dtype=pl.UInt32).shuffle(seed=cfg.seed).alias("_rng"))
+        .sort("_rng")
+        .group_by("attacker_id")
+        .head(MAX_SEM_PER_ATTACKER)
+        .drop("_rng")
+    )
+    mention_pids_s = mention_df["post_id"].unique()
+    logger.info("Semantic: collecting {} posts ({} per attacker cap)", mention_pids_s.len(), MAX_SEM_PER_ATTACKER)
+    posts = scan_partitioned(cfg.pol_parquet).filter(
+        pl.col("post_id").is_in(mention_pids_s)
+    ).collect()
+    logger.info("Collected {} posts for semantic scoring", posts.height)
 
     from saints_score.semantic.convergence import compute_semantic_metrics
 
@@ -383,13 +493,13 @@ def score(config_path: str, dry_run: bool, limit: int | None, skip_bayes: bool) 
 
         plot_saints_comparison(naive, bayes, cfg.resolve(cfg.out_dir) / "figures")
 
-    run.metrics = {"n_naive": naive.height, "n_bayes": bayes.height if bayes else 0}
+    run.metrics = {"n_naive": naive.height, "n_bayes": bayes.height if bayes is not None else 0}
     if not dry_run:
         summary_dir = run.save(cfg.runs)
         (summary_dir / "SUMMARY.md").write_text(
             f"# Phase 6 — Saints Score Assembly Summary\n\n"
             f"- Naive scores: {naive.height}\n"
-            f"- Bayesian scores: {bayes.height if bayes else 'skipped'}\n",
+            f"- Bayesian scores: {bayes.height if bayes is not None else 'skipped'}\n",
             encoding="utf-8",
         )
     logger.info("Phase 6 complete. Check face validity before Phase 7.")
@@ -458,10 +568,27 @@ def linguistic_drift(config_path: str, dry_run: bool, limit: int | None) -> None
 
     mention_df = read_parquet(mentions_path)
     cases = read_parquet(cfg.resolve(cfg.data_processed) / "cases.parquet")
-    posts = scan_partitioned(cfg.pol_parquet).collect()
 
     if limit:
         mention_df = mention_df.head(limit)
+
+    # Cap per-attacker before collection (drift analysis uses embeddings; 500/attacker
+    # preserves temporal ordering needed for window-based drift computation).
+    MAX_DRIFT_PER_ATTACKER = 500
+    mention_df = (
+        mention_df
+        .with_columns(pl.int_range(pl.len(), dtype=pl.UInt32).shuffle(seed=cfg.seed).alias("_rng"))
+        .sort("_rng")
+        .group_by("attacker_id")
+        .head(MAX_DRIFT_PER_ATTACKER)
+        .drop("_rng")
+    )
+    mention_pids_d = mention_df["post_id"].unique()
+    logger.info("Drift: collecting {} posts ({} per attacker cap)", mention_pids_d.len(), MAX_DRIFT_PER_ATTACKER)
+    posts = scan_partitioned(cfg.pol_parquet).filter(
+        pl.col("post_id").is_in(mention_pids_d)
+    ).collect()
+    logger.info("Collected {} posts for drift analysis", posts.height)
 
     from saints_score.semantic.drift import compute_drift_metrics
 

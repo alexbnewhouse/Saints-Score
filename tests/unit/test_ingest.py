@@ -27,38 +27,19 @@ def test_extract_replies():
 
 
 def test_parse_chunk_with_valid_rows():
-    # Minimal row with enough columns
-    rows = [
-        [
-            "1001",
-            "0",
-            "1000",
-            "1",
-            "1553000000",
-            "0",
-            "",
-            "",
-            "",
-            "Test Title",
-            "Hello <b>world</b>",
-            "poster1",
-            "US",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "img.jpg",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-        ]
-    ]
+    # Row must be at least 27 columns long; column indices match pol.py constants:
+    # IDX_NUM=0, IDX_THREAD=2, IDX_TIMESTAMP=4, IDX_MEDIA_ORIG=14,
+    # IDX_TITLE=21, IDX_COMMENT=22, IDX_POSTER_HASH=25, IDX_COUNTRY=26
+    row = [""] * 27
+    row[0] = "1001"        # post_id
+    row[2] = "1000"        # thread_id
+    row[4] = "1553000000"  # timestamp
+    row[14] = "img.jpg"    # media_orig (has_image)
+    row[21] = "Test Title" # title
+    row[22] = "Hello <b>world</b>"  # body (comment)
+    row[25] = "poster1"    # poster_hash
+    row[26] = "US"         # country
+    rows = [row]
     df = parse_chunk(rows)
     assert df.height == 1
     assert df["post_id"][0] == 1001

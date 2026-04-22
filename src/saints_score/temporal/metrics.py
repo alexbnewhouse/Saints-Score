@@ -179,6 +179,20 @@ def fit_decay(
         tau = tau[keep]
         y = y[keep]
 
+        if len(tau) < 3:
+            results.append(
+                {
+                    "attacker_id": case_id,
+                    "longevity": None,
+                    "alpha": None,
+                    "alpha_se": None,
+                    "C": None,
+                    "n_days": len(tau),
+                    "fit_success": False,
+                }
+            )
+            continue
+
         try:
             popt, pcov = optimize.curve_fit(
                 _power_law,

@@ -21,6 +21,19 @@ if TYPE_CHECKING:
 _model_cache: dict[str, SentenceTransformer] = {}
 
 
+def release_embedding_resources() -> None:
+    """Release cached embedding model and free accelerator memory."""
+    _model_cache.clear()
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        # Best-effort cleanup only.
+        pass
+
+
 def _get_embedding_model(cfg: Settings) -> SentenceTransformer:
     """Load (or return cached) SentenceTransformer model.
 
@@ -81,8 +94,8 @@ def embed_texts(
 ) -> np.ndarray:
     """Embed texts using the configured sentence-transformer model.
 
-    When running on GPU, the batch size is automatically scaled up
-    to utilise available VRAM (unless explicitly overridden).
+    Uses ``cfg.embedding_batch_size`` by default. On GPU, applies a conservative
+    VRAM-based safety cap to avoid OOMs on large corpora.
 
     Returns an (N, D) float32 array.
     """
@@ -90,13 +103,34 @@ def embed_texts(
 
     model = _get_embedding_model(cfg)
     bs = batch_size or cfg.embedding_batch_size
-    # Auto-scale batch size on GPU (larger batches → better GPU utilisation)
     if batch_size is None and torch.cuda.is_available():
         dev = torch.cuda.current_device()
-        mem_gb = torch.cuda.get_device_properties(dev).total_mem / (1024**3)
-        # ~1 GB per 512 batch for typical sentence-transformer models
-        bs = max(bs, min(int(mem_gb * 512), 4096))
-        logger.info("GPU detected ({:.1f} GB VRAM): auto batch_size={}", mem_gb, bs)
+        mem_gb = torch.cuda.get_device_properties(dev).total_memory / (1024**3)
+        # Safety cap only (do not auto-increase): keeps config-driven defaults stable.
+        # Empirically conservative for nomic-embed-text-v1.5 on 16GB-class GPUs.
+        safe_cap = max(32, min(int(mem_gb * 16), 512))
+        if bs > safe_cap:
+            logger.warning(
+                "GPU detected ({:.1f} GB VRAM): reducing batch_size {} -> {} for stability",
+                mem_gb,
+                bs,
+                safe_cap,
+            )
+            bs = safe_cap
+        else:
+            logger.info("GPU detected ({:.1f} GB VRAM): using batch_size={}", mem_gb, bs)
+
+    # Cap per-post sequence length: nomic-embed-text-v1.5 defaults to 8192 tokens,
+    # which causes OOM in RoPE attention intermediates even at modest batch sizes.
+    # /pol/ posts fit comfortably within 512 tokens (~384 words).
+    _MAX_SEQ_LEN = 512
+    if hasattr(model, "max_seq_length") and model.max_seq_length > _MAX_SEQ_LEN:
+        logger.info(
+            "Capping model max_seq_length {} -> {} to reduce VRAM usage",
+            model.max_seq_length,
+            _MAX_SEQ_LEN,
+        )
+        model.max_seq_length = _MAX_SEQ_LEN
 
     logger.info("Embedding {} texts with {} (batch_size={})", len(texts), cfg.embedding_model, bs)
 

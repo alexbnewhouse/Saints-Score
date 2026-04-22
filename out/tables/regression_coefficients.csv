@@ -1,0 +1,5 @@
+predictor,mean,sd,hdi_5.5%,hdi_94.5%,mcse_mean,mcse_sd,ess_bulk,ess_tail,r_hat
+log_casualties,0.001,0.001,-0.0,0.003,0.0,0.0,5663.0,5358.0,1.0
+manifesto_exists_bin,0.002,0.004,-0.004,0.008,0.0,0.0,6157.0,5500.0,1.0
+livestream_successful_bin,0.003,0.007,-0.008,0.013,0.0,0.0,2095.0,4509.0,1.0
+perp_age_std,-0.001,0.001,-0.003,0.001,0.0,0.0,4257.0,5328.0,1.0

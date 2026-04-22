@@ -93,6 +93,12 @@ def plot_saints_comparison(
 
     x = merged["saints_naive"].to_numpy()
     y = merged["saints_bayes_mean"].to_numpy()
+
+    if len(x) == 0:
+        logger.warning("No data to plot for saints comparison")
+        plt.close(fig)
+        return out_dir
+
     lo = merged["saints_bayes_hdi_lo"].to_numpy()
     hi = merged["saints_bayes_hdi_hi"].to_numpy()
 

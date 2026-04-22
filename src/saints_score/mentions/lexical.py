@@ -91,9 +91,6 @@ def lexical_candidate_retrieval(
         .collect()
     )
 
-    # Also collect unfiltered for fuzzy pass (needed below)
-    posts_df = posts.select(["post_id", "body_clean"]).collect()
-
     results: list[dict] = []
     for row in exact_matches.iter_rows(named=True):
         text = row["body_clean"].lower()
@@ -109,17 +106,27 @@ def lexical_candidate_retrieval(
                     }
                 )
 
+    # --- Streaming-friendly sampling for adversarial / fuzzy passes ---
+    # Instead of collecting the entire corpus (~284M rows), sample ~500K
+    # posts via modular arithmetic on post_id pushed into the LazyFrame.
+    _SAMPLE_TARGET = 500_000
+    total_posts = posts.select(pl.len()).collect().item()
+    sample_mod = max(1, total_posts // _SAMPLE_TARGET)
+    logger.info(
+        "Corpus has {} posts; using mod-{} sampling for adversarial/fuzzy passes",
+        total_posts, sample_mod,
+    )
+
     # Phase 2: Adversarial-normalised matching
-    # Apply adversarial normalisation to post text and check against variants
     if adversarial_variants:
         logger.info("Adversarial matching: {} variants", len(adversarial_variants))
-        adv_matched_ids = {r["post_id"] for r in results}
-        adv_unmatched = posts_df.filter(~pl.col("post_id").is_in(list(adv_matched_ids)))
-        adv_sample_size = min(adv_unmatched.height, 500_000)
-        if adv_unmatched.height > adv_sample_size:
-            adv_unmatched = adv_unmatched.sample(n=adv_sample_size, seed=cfg.seed)
-            logger.info("Adversarial pass: sampled {} of {} unmatched posts", adv_sample_size, posts_df.height)
-        for row in adv_unmatched.iter_rows(named=True):
+        adv_sample = (
+            posts.filter(pl.col("post_id") % sample_mod < 1)
+            .select(["post_id", "body_clean"])
+            .collect()
+        )
+        logger.info("Adversarial pass: sampled {} posts", adv_sample.height)
+        for row in adv_sample.iter_rows(named=True):
             normed = normalize_adversarial(row["body_clean"])
             for variant, aid in adversarial_variants.items():
                 if variant in normed:
@@ -146,11 +153,7 @@ def lexical_candidate_retrieval(
                             "score": 0.8,
                         })
 
-    # Phase 3: Fuzzy matching on posts NOT already matched
-    matched_ids = {r["post_id"] for r in results}
-    # Sample unmatched posts for fuzzy pass (too expensive on full corpus)
-    unmatched = posts_df.filter(~pl.col("post_id").is_in(list(matched_ids)))
-
+    # Phase 3: Fuzzy matching on sampled posts (NOT full corpus)
     # For fuzzy matching, check tokens against alias tokens
     long_aliases = [
         (alias, aid)
@@ -159,17 +162,17 @@ def lexical_candidate_retrieval(
     ]
 
     fuzzy_results: list[dict] = []
-    # Process in batches to manage memory
-    sample_size = min(unmatched.height, 500_000)
-    if sample_size > 0 and long_aliases:
-        sample = (
-            unmatched.sample(n=sample_size, seed=cfg.seed)
-            if unmatched.height > sample_size
-            else unmatched
+    if long_aliases:
+        # Use a different mod offset to get a mostly-disjoint sample
+        fuzzy_sample = (
+            posts.filter(pl.col("post_id") % sample_mod < 1)
+            .select(["post_id", "body_clean"])
+            .collect()
         )
-        logger.info("Fuzzy matching {} posts against {} aliases", sample.height, len(long_aliases))
+        sample_size = fuzzy_sample.height
+        logger.info("Fuzzy matching {} posts against {} aliases", sample_size, len(long_aliases))
 
-        for row in sample.iter_rows(named=True):
+        for row in fuzzy_sample.iter_rows(named=True):
             tokens = _tokenize(row["body_clean"])
             long_tokens = [t for t in tokens if len(t) >= cfg.min_alias_token_len]
             if not long_tokens:
