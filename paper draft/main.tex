@@ -133,12 +133,12 @@ For each case, the dataset records up to 77 variables spanning several categorie
     \label{tab:database}
 \end{table}
 
-Figure~\ref{fig:dataset-overview} summarizes the dataset along four dimensions. The temporal distribution (panel a) is concentrated in the 2010s and early 2020s, reflecting both the period of heightened extreme-right mobilization in OECD countries and the availability of detailed public records for recent events. The geographic distribution (panel b) is dominated by the United States, with a substantial European tail (Germany, the United Kingdom, France) and smaller contributions from Japan, Russia, Australia, and Canada. Panel (c) shows that fatality counts are right-skewed: the median attack produces four fatalities, but a small number of high-casualty events (e.g., Breivik, Pulse, Christchurch, Las Vegas) sit in the long tail. Panel (d) shows the distribution of confirmed /pol/ mentions per attacker from the detection pipeline: of the 157 attackers for whom a mention search was feasible, 134 generate at least one confirmed mention and the median attacker accumulates roughly 500 mentions, but the distribution spans nearly four orders of magnitude. This heterogeneity in community attention is precisely the variation the Saints Score is designed to quantify.
+Figure~\ref{fig:dataset-overview} summarizes the 88 attacks that occurred on or before the corpus end year of 2021; attacks that postdate the corpus are excluded from the descriptive figures because no in-corpus mention evidence is available for them. The temporal distribution (panel a) is concentrated in the 2010s and early 2020s, reflecting both the period of heightened extreme-right mobilization in OECD countries and the availability of detailed public records for recent events. The geographic distribution (panel b) is dominated by the United States, with a substantial European tail (Germany, the United Kingdom, France) and smaller contributions from Japan, Russia, Australia, and Canada. Panel (c) shows that fatality counts are right-skewed: the median attack produces six fatalities, but a small number of high-casualty events (e.g., Breivik, Pulse, Christchurch, Las Vegas) sit in the long tail. Panel (d) shows the distribution of confirmed /pol/ mentions per attacker from the detection pipeline: among the 88 in-corpus attackers, 83 generate at least one confirmed mention and the median attacker accumulates roughly 475 mentions, but the distribution spans nearly four orders of magnitude. This heterogeneity in community attention is precisely the variation the Saints Score is designed to quantify.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/dataset_overview.png}
-    \caption{Descriptive overview of the mass-casualty attack dataset and the /pol/ mention corpus. (a) Attacks per year. (b) Top 12 countries by attack count. (c) Fatality distribution (log scale). (d) Confirmed /pol/ mentions per attacker (log scale).}
+    \caption{Descriptive overview of the mass-casualty attack dataset and the /pol/ mention corpus, restricted to attacks occurring on or before the 2021 corpus end date. (a) Attacks per year. (b) Top 12 countries by attack count. (c) Fatality distribution (log scale). (d) Confirmed /pol/ mentions per attacker (log scale).}
     \label{fig:dataset-overview}
 \end{figure}
 
@@ -334,7 +334,7 @@ Figure~\ref{fig:ranked} ranks the top 30 attackers by na\"ive Saints Score and o
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/saints_score_ranked.png}
-    \caption{Top 30 attackers by na\"ive Saints Score (blue bars), with Bayesian posterior means and 89\% HDIs overlaid (red points and whiskers). The Bayesian estimates shrink sharply toward zero, and all HDIs include zero, illustrating the conservatism of the measurement model under the current indicator set.}
+    \caption{Top 30 attackers by na\"ive Saints Score (blue bars), with Bayesian posterior means and 89\% HDIs overlaid (red points and whiskers). Restricted to attacks occurring on or before the 2021 corpus end date. The Bayesian estimates shrink sharply toward zero, and all HDIs include zero, illustrating the conservatism of the measurement model under the current indicator set.}
     \label{fig:ranked}
 \end{figure}
 

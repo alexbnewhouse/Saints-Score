@@ -18,6 +18,11 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "out" / "figures"
 OUT.mkdir(parents=True, exist_ok=True)
 
+# The /pol/ corpus spans 2013–2021. Attacks after 2021 cannot be meaningfully
+# analyzed for in-corpus mentions, so they are excluded from descriptive
+# visualizations (they remain in the raw case dataset).
+CORPUS_END_YEAR = 2021
+
 plt.rcParams.update(
     {
         "figure.dpi": 150,
@@ -33,6 +38,10 @@ plt.rcParams.update(
 def dataset_overview() -> Path:
     cases = pl.read_csv(ROOT / "out" / "cases.csv", infer_schema_length=10000)
     naive = pl.read_csv(ROOT / "out" / "scores" / "saints_naive.csv")
+
+    cases = cases.filter(pl.col("event_year") <= CORPUS_END_YEAR)
+    in_corpus_ids = set(cases["case_id"].to_list())
+    naive = naive.filter(pl.col("attacker_id").is_in(in_corpus_ids))
 
     fig, axes = plt.subplots(2, 2, figsize=(11, 8))
 
@@ -103,6 +112,12 @@ def dataset_overview() -> Path:
 def saints_score_ranked(top_n: int = 30) -> Path:
     naive = pl.read_csv(ROOT / "out" / "scores" / "saints_naive.csv")
     bayes = pl.read_csv(ROOT / "out" / "scores" / "saints_bayes.csv")
+    cases = pl.read_csv(ROOT / "out" / "cases.csv", infer_schema_length=10000)
+
+    in_corpus_ids = set(
+        cases.filter(pl.col("event_year") <= CORPUS_END_YEAR)["case_id"].to_list()
+    )
+    naive = naive.filter(pl.col("attacker_id").is_in(in_corpus_ids))
 
     df = naive.join(bayes, on="attacker_id", how="left").sort(
         "saints_naive", descending=True
