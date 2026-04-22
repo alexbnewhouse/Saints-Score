@@ -168,8 +168,58 @@ def saints_score_ranked(top_n: int = 30) -> Path:
     return out
 
 
+def saints_score_comparison() -> Path:
+    naive = pl.read_csv(ROOT / "out" / "scores" / "saints_naive.csv")
+    bayes = pl.read_csv(ROOT / "out" / "scores" / "saints_bayes.csv")
+    cases = pl.read_csv(ROOT / "out" / "cases.csv", infer_schema_length=10000)
+
+    in_corpus_ids = set(
+        cases.filter(pl.col("event_year") <= CORPUS_END_YEAR)["case_id"].to_list()
+    )
+    merged = (
+        naive.join(bayes, on="attacker_id", how="inner")
+        .filter(pl.col("attacker_id").is_in(in_corpus_ids))
+        .drop_nulls(["saints_naive", "saints_bayes_mean"])
+    )
+
+    x = merged["saints_naive"].to_numpy()
+    y = merged["saints_bayes_mean"].to_numpy()
+    lo = merged["saints_bayes_hdi_lo"].to_numpy()
+    hi = merged["saints_bayes_hdi_hi"].to_numpy()
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.errorbar(x, y, yerr=[y - lo, hi - y], fmt="o", capsize=3, alpha=0.7)
+
+    for i, name in enumerate(merged["attacker_id"].to_list()):
+        short = name.split("-")[-1] if "-" in name else name
+        ax.annotate(
+            short,
+            (x[i], y[i]),
+            fontsize=7,
+            alpha=0.7,
+            xytext=(3, 3),
+            textcoords="offset points",
+        )
+
+    ax.set_xlabel("Naïve Saints Score")
+    ax.set_ylabel("Bayesian Saints Score (mean ± 89% HDI)")
+    ax.set_title("Saints Score: Naïve vs Bayesian (in-corpus attacks, ≤2021)")
+
+    lims = [min(x.min(), y.min()), max(x.max(), y.max())]
+    ax.plot(lims, lims, "k--", alpha=0.3, label="1:1")
+    ax.legend()
+
+    out = OUT / "saints_score_comparison.png"
+    fig.tight_layout()
+    fig.savefig(out)
+    plt.close(fig)
+    return out
+
+
 if __name__ == "__main__":
     p1 = dataset_overview()
     p2 = saints_score_ranked(top_n=30)
+    p3 = saints_score_comparison()
     print(f"Wrote {p1}")
     print(f"Wrote {p2}")
+    print(f"Wrote {p3}")
